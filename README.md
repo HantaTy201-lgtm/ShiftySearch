@@ -89,12 +89,13 @@ Safari использует формат Safari Web Extensions:
 
 ## 🔑 Где взять бесплатные API-ключи
 
-1. **Google Gemini** (Рекомендуется, быстрый и доступный):
-   - Получить ключ: [Google AI Studio](https://aistudio.google.com/app/apikey)
-2. **Groq** (Очень быстрая открытая Llama 3.3):
+1. **OpenRouter (САМЫЙ УДОБНЫЙ В РФ — РАБОТАЕТ БЕЗ VPN)**:
+   - Получить ключ: [OpenRouter Keys](https://openrouter.ai/keys) (вход через Google/GitHub в 1 клик).
+   - Включает бесплатные модели: `google/gemini-2.0-flash-exp:free`, `meta-llama/llama-3.3-70b-instruct:free`, `deepseek/deepseek-chat`.
+2. **Google Gemini** (Требует VPN при использовании из РФ/СНГ):
+   - Получить ключ: [Google AI Studio](https://aistudio.google.com/app/apikey) (при создании нажимайте *«Create API key in new project»*).
+3. **Groq** (Сверхбыстрая Llama 3.3, требует VPN из РФ/СНГ):
    - Получить ключ: [Groq Console](https://console.groq.com/keys)
-3. **OpenRouter** (Доступ к сотням моделей, включая поиск Perplexity Sonar):
-   - Получить ключ: [OpenRouter Keys](https://openrouter.ai/keys)
 4. **OpenAI** (ChatGPT):
    - Получить ключ: [OpenAI Platform](https://platform.openai.com/api-keys)
 5. **DeepSeek**:

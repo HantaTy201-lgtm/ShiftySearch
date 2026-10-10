@@ -1,14 +1,38 @@
 (() => {
   // src/api/ai-client.js
   var PROVIDERS = {
+    openrouter: {
+      id: "openrouter",
+      name: "OpenRouter (\u0420\u0430\u0431\u043E\u0442\u0430\u0435\u0442 \u0411\u0415\u0417 VPN, \u0411\u0435\u0441\u043F\u043B\u0430\u0442\u043D\u043E)",
+      defaultModel: "google/gemini-2.0-flash-exp:free",
+      models: [
+        "google/gemini-2.0-flash-exp:free",
+        "deepseek/deepseek-chat",
+        "meta-llama/llama-3.3-70b-instruct:free",
+        "perplexity/sonar",
+        "openai/gpt-4o-mini"
+      ],
+      defaultUrl: "https://openrouter.ai/api/v1/chat/completions",
+      keyPlaceholder: "sk-or-v1-...",
+      keyHelpUrl: "https://openrouter.ai/keys"
+    },
     gemini: {
       id: "gemini",
-      name: "Google Gemini",
-      defaultModel: "gemini-1.5-flash",
-      models: ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"],
+      name: "Google Gemini (\u041D\u0443\u0436\u0435\u043D VPN \u0432 \u0420\u0424)",
+      defaultModel: "gemini-2.0-flash",
+      models: ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"],
       defaultUrl: "",
       keyPlaceholder: "AIzaSy...",
       keyHelpUrl: "https://aistudio.google.com/app/apikey"
+    },
+    groq: {
+      id: "groq",
+      name: "Groq (Llama 3.3, \u043D\u0443\u0436\u0435\u043D VPN \u0432 \u0420\u0424)",
+      defaultModel: "llama-3.3-70b-versatile",
+      models: ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"],
+      defaultUrl: "https://api.groq.com/openai/v1/chat/completions",
+      keyPlaceholder: "gsk_...",
+      keyHelpUrl: "https://console.groq.com/keys"
     },
     openai: {
       id: "openai",
@@ -19,22 +43,6 @@
       keyPlaceholder: "sk-...",
       keyHelpUrl: "https://platform.openai.com/api-keys"
     },
-    openrouter: {
-      id: "openrouter",
-      name: "OpenRouter (All Models + Perplexity)",
-      defaultModel: "perplexity/sonar",
-      models: [
-        "perplexity/sonar",
-        "deepseek/deepseek-chat",
-        "deepseek/deepseek-r1",
-        "meta-llama/llama-3.3-70b-instruct",
-        "google/gemini-2.0-flash-exp:free",
-        "openai/gpt-4o-mini"
-      ],
-      defaultUrl: "https://openrouter.ai/api/v1/chat/completions",
-      keyPlaceholder: "sk-or-v1-...",
-      keyHelpUrl: "https://openrouter.ai/keys"
-    },
     anthropic: {
       id: "anthropic",
       name: "Anthropic Claude",
@@ -43,15 +51,6 @@
       defaultUrl: "https://api.anthropic.com/v1/messages",
       keyPlaceholder: "sk-ant-...",
       keyHelpUrl: "https://console.anthropic.com/settings/keys"
-    },
-    groq: {
-      id: "groq",
-      name: "Groq (Ultra-fast, \u0431\u0435\u0437 VPN)",
-      defaultModel: "llama-3.3-70b-versatile",
-      models: ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"],
-      defaultUrl: "https://api.groq.com/openai/v1/chat/completions",
-      keyPlaceholder: "gsk_...",
-      keyHelpUrl: "https://console.groq.com/keys"
     },
     deepseek: {
       id: "deepseek",
@@ -64,7 +63,7 @@
     },
     custom: {
       id: "custom",
-      name: "Custom (Ollama / Local / Proxy)",
+      name: "\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u0438\u0439 (Ollama / Local / Proxy)",
       defaultModel: "llama3.2",
       models: ["llama3.2", "mistral", "qwen2.5"],
       defaultUrl: "http://localhost:11434/v1/chat/completions",
@@ -151,7 +150,7 @@
       }
       let msg = err.message || "\u041D\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043D\u0430\u044F \u043E\u0448\u0438\u0431\u043A\u0430";
       if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
-        msg = "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u044C\u0441\u044F \u043A \u0441\u0435\u0440\u0432\u0435\u0440\u0443 \u043D\u0435\u0439\u0440\u043E\u0441\u0435\u0442\u0438 (Failed to fetch). \u0415\u0441\u043B\u0438 \u0432\u044B \u0432 \u0420\u0424 \u2014 \u0434\u043B\u044F Google Gemini \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E \u043D\u0443\u0436\u0435\u043D \u0432\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u044B\u0439 VPN, \u043B\u0438\u0431\u043E \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u0441\u044C \u043D\u0430 Groq \u0432 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u0445 (Groq \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442 \u0431\u0435\u0437 VPN).";
+        msg = "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u044C\u0441\u044F \u043A \u0441\u0435\u0440\u0432\u0435\u0440\u0443 \u043D\u0435\u0439\u0440\u043E\u0441\u0435\u0442\u0438 (NetworkError / Failed to fetch). \u0415\u0441\u043B\u0438 \u0432\u044B \u0432 \u0420\u0424 \u2014 \u0434\u043B\u044F \u043F\u0440\u044F\u043C\u043E\u0433\u043E Gemini \u0438 Groq \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E \u043D\u0443\u0436\u0435\u043D VPN, \u043B\u0438\u0431\u043E \u0432\u044B\u0431\u0435\u0440\u0438\u0442\u0435 OpenRouter \u0432 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u0445 ShiftySearch (\u043E\u043D \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442 \u0431\u0435\u0437 VPN).";
       }
       onError(new Error(msg));
     }
@@ -219,7 +218,7 @@
         errorDetail = await response.text();
       }
       if (response.status === 401 || errorDetail.includes("invalid authentication credentials") || errorDetail.includes("UNAUTHENTICATED")) {
-        throw new Error("\u041A\u043B\u044E\u0447 API \u043D\u0435 \u043F\u0440\u0438\u0432\u044F\u0437\u0430\u043D \u043A Generative Language API (\u041E\u0448\u0438\u0431\u043A\u0430 401). \u041F\u0440\u0438 \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u0438 \u043A\u043B\u044E\u0447\u0430 \u0432 Google AI Studio (aistudio.google.com/app/apikey) \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E \u043D\u0430\u0436\u043C\u0438\u0442\u0435 \u043A\u043D\u043E\u043F\u043A\u0443 \xABCreate API key in new project\xBB (\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0432 \u043D\u043E\u0432\u043E\u043C \u043F\u0440\u043E\u0435\u043A\u0442\u0435). \u0415\u0441\u043B\u0438 \u0432\u044B\u0431\u0440\u0430\u0442\u044C \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0439 \u043F\u0440\u043E\u0435\u043A\u0442 Google Cloud \u0431\u0435\u0437 \u0432\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u043E\u0433\u043E API, \u043A\u043B\u044E\u0447 \u0440\u0430\u0431\u043E\u0442\u0430\u0442\u044C \u043D\u0435 \u0431\u0443\u0434\u0435\u0442.");
+        throw new Error("\u041A\u043B\u044E\u0447 API \u043D\u0435 \u0430\u0432\u0442\u043E\u0440\u0438\u0437\u043E\u0432\u0430\u043D (\u041E\u0448\u0438\u0431\u043A\u0430 401). \u041F\u0440\u0438\u0447\u0438\u043D\u044B: 1) \u0412 \u0420\u0424/\u0421\u041D\u0413 \u043F\u0440\u044F\u043C\u043E\u0439 \u0434\u043E\u0441\u0442\u0443\u043F \u043A Gemini \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D Google (\u0432\u043A\u043B\u044E\u0447\u0438\u0442\u0435 VPN \u0438\u043B\u0438 \u0432\u044B\u0431\u0435\u0440\u0438\u0442\u0435 OpenRouter \u0432 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u0445). 2) \u0412 Google AI Studio (aistudio.google.com/app/apikey) \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E \u0441\u043E\u0437\u0434\u0430\u0432\u0430\u0439\u0442\u0435 \u043A\u043B\u044E\u0447 \u0447\u0435\u0440\u0435\u0437 \u043A\u043D\u043E\u043F\u043A\u0443 \xABCreate API key in new project\xBB.");
       }
       if (errorDetail.includes("API_KEY_INVALID") || errorDetail.includes("API key not valid")) {
         throw new Error("API-\u043A\u043B\u044E\u0447 Google Gemini \u043D\u0435\u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0442\u0435\u043B\u0435\u043D. \u0423\u0431\u0435\u0434\u0438\u0442\u0435\u0441\u044C, \u0447\u0442\u043E \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043B\u0438 \u043A\u043B\u044E\u0447 \u043F\u043E\u043B\u043D\u043E\u0441\u0442\u044C\u044E \u0438\u0437 Google AI Studio (aistudio.google.com/app/apikey).");
@@ -227,8 +226,8 @@
       if (errorDetail.includes("RESOURCE_EXHAUSTED")) {
         throw new Error("\u041F\u0440\u0435\u0432\u044B\u0448\u0435\u043D \u043B\u0438\u043C\u0438\u0442 \u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432 Google Gemini. \u041F\u043E\u0434\u043E\u0436\u0434\u0438\u0442\u0435 1 \u043C\u0438\u043D\u0443\u0442\u0443 \u0438\u043B\u0438 \u0432\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u043C\u043E\u0434\u0435\u043B\u044C gemini-1.5-flash.");
       }
-      if (errorDetail.includes("User location is not supported")) {
-        throw new Error("Google Gemini \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D \u0432 \u0432\u0430\u0448\u0435\u043C \u0440\u0435\u0433\u0438\u043E\u043D\u0435 \u0431\u0435\u0437 VPN (User location is not supported). \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 VPN \u0438\u043B\u0438 \u0432\u044B\u0431\u0435\u0440\u0438\u0442\u0435 OpenRouter / Groq \u0432 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u0445.");
+      if (response.status === 403 || errorDetail.includes("User location is not supported")) {
+        throw new Error("Google Gemini \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D \u0432 \u0432\u0430\u0448\u0435\u043C \u0440\u0435\u0433\u0438\u043E\u043D\u0435 \u0431\u0435\u0437 VPN (\u041E\u0448\u0438\u0431\u043A\u0430 403 / Location not supported). \u0412\u043A\u043B\u044E\u0447\u0438\u0442\u0435 VPN \u0438\u043B\u0438 \u0432\u044B\u0431\u0435\u0440\u0438\u0442\u0435 OpenRouter \u0432 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u0445 ShiftySearch (OpenRouter \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442 \u0431\u0435\u0437 VPN).");
       }
       throw new Error(`\u041E\u0448\u0438\u0431\u043A\u0430 Gemini API (${response.status}): ${errorDetail || response.statusText}`);
     }
@@ -312,6 +311,15 @@
         }
       } catch {
         errorDetail = await response.text();
+      }
+      if (response.status === 403 || errorDetail && errorDetail.toLowerCase().includes("forbidden")) {
+        if (provider === "groq") {
+          throw new Error("Groq \u0431\u043B\u043E\u043A\u0438\u0440\u0443\u0435\u0442 \u0437\u0430\u043F\u0440\u043E\u0441\u044B \u0431\u0435\u0437 VPN (\u041E\u0448\u0438\u0431\u043A\u0430 403 Forbidden). \u0412\u043A\u043B\u044E\u0447\u0438\u0442\u0435 VPN \u0432 \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0435 \u0438\u043B\u0438 \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u0441\u044C \u0432 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u0445 \u043D\u0430 OpenRouter (\u043E\u043D \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442 \u0431\u0435\u0437 VPN \u0438 \u043F\u0440\u0435\u0434\u043E\u0441\u0442\u0430\u0432\u043B\u044F\u0435\u0442 \u0431\u0435\u0441\u043F\u043B\u0430\u0442\u043D\u044B\u0435 \u043C\u043E\u0434\u0435\u043B\u0438 Gemini \u0438 Llama).");
+        }
+        throw new Error(`\u0414\u043E\u0441\u0442\u0443\u043F \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D \u0441\u0435\u0440\u0432\u0435\u0440\u043E\u043C (\u041E\u0448\u0438\u0431\u043A\u0430 403 Forbidden). \u0415\u0441\u043B\u0438 \u0432\u044B \u043D\u0430\u0445\u043E\u0434\u0438\u0442\u0435\u0441\u044C \u0432 \u0420\u0424/\u0421\u041D\u0413, \u0432\u043A\u043B\u044E\u0447\u0438\u0442\u0435 VPN \u0438\u043B\u0438 \u0432\u044B\u0431\u0435\u0440\u0438\u0442\u0435 OpenRouter \u0432 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u0445 ShiftySearch.`);
+      }
+      if (response.status === 401) {
+        throw new Error(`\u041D\u0435\u0432\u0435\u0440\u043D\u044B\u0439 API-\u043A\u043B\u044E\u0447 (${response.status}): \u043F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u043F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u043E\u0441\u0442\u044C \u043A\u043B\u044E\u0447\u0430 \u0434\u043B\u044F ${provider}.`);
       }
       throw new Error(`\u041E\u0448\u0438\u0431\u043A\u0430 API (${response.status}): ${errorDetail || response.statusText}`);
     }

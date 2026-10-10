@@ -3,14 +3,38 @@
 // Supports Google Gemini (Native API & AI Studio), OpenAI, Anthropic, OpenRouter, Groq, DeepSeek, and Custom endpoints.
 
 export const PROVIDERS = {
+  openrouter: {
+    id: 'openrouter',
+    name: 'OpenRouter (Работает БЕЗ VPN, Бесплатно)',
+    defaultModel: 'google/gemini-2.0-flash-exp:free',
+    models: [
+      'google/gemini-2.0-flash-exp:free',
+      'deepseek/deepseek-chat',
+      'meta-llama/llama-3.3-70b-instruct:free',
+      'perplexity/sonar',
+      'openai/gpt-4o-mini'
+    ],
+    defaultUrl: 'https://openrouter.ai/api/v1/chat/completions',
+    keyPlaceholder: 'sk-or-v1-...',
+    keyHelpUrl: 'https://openrouter.ai/keys'
+  },
   gemini: {
     id: 'gemini',
-    name: 'Google Gemini',
-    defaultModel: 'gemini-1.5-flash',
-    models: ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'],
+    name: 'Google Gemini (Нужен VPN в РФ)',
+    defaultModel: 'gemini-2.0-flash',
+    models: ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'],
     defaultUrl: '',
     keyPlaceholder: 'AIzaSy...',
     keyHelpUrl: 'https://aistudio.google.com/app/apikey'
+  },
+  groq: {
+    id: 'groq',
+    name: 'Groq (Llama 3.3, нужен VPN в РФ)',
+    defaultModel: 'llama-3.3-70b-versatile',
+    models: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768'],
+    defaultUrl: 'https://api.groq.com/openai/v1/chat/completions',
+    keyPlaceholder: 'gsk_...',
+    keyHelpUrl: 'https://console.groq.com/keys'
   },
   openai: {
     id: 'openai',
@@ -21,22 +45,6 @@ export const PROVIDERS = {
     keyPlaceholder: 'sk-...',
     keyHelpUrl: 'https://platform.openai.com/api-keys'
   },
-  openrouter: {
-    id: 'openrouter',
-    name: 'OpenRouter (All Models + Perplexity)',
-    defaultModel: 'perplexity/sonar',
-    models: [
-      'perplexity/sonar',
-      'deepseek/deepseek-chat',
-      'deepseek/deepseek-r1',
-      'meta-llama/llama-3.3-70b-instruct',
-      'google/gemini-2.0-flash-exp:free',
-      'openai/gpt-4o-mini'
-    ],
-    defaultUrl: 'https://openrouter.ai/api/v1/chat/completions',
-    keyPlaceholder: 'sk-or-v1-...',
-    keyHelpUrl: 'https://openrouter.ai/keys'
-  },
   anthropic: {
     id: 'anthropic',
     name: 'Anthropic Claude',
@@ -45,15 +53,6 @@ export const PROVIDERS = {
     defaultUrl: 'https://api.anthropic.com/v1/messages',
     keyPlaceholder: 'sk-ant-...',
     keyHelpUrl: 'https://console.anthropic.com/settings/keys'
-  },
-  groq: {
-    id: 'groq',
-    name: 'Groq (Ultra-fast, без VPN)',
-    defaultModel: 'llama-3.3-70b-versatile',
-    models: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768'],
-    defaultUrl: 'https://api.groq.com/openai/v1/chat/completions',
-    keyPlaceholder: 'gsk_...',
-    keyHelpUrl: 'https://console.groq.com/keys'
   },
   deepseek: {
     id: 'deepseek',
@@ -66,7 +65,7 @@ export const PROVIDERS = {
   },
   custom: {
     id: 'custom',
-    name: 'Custom (Ollama / Local / Proxy)',
+    name: 'Пользовательский (Ollama / Local / Proxy)',
     defaultModel: 'llama3.2',
     models: ['llama3.2', 'mistral', 'qwen2.5'],
     defaultUrl: 'http://localhost:11434/v1/chat/completions',
@@ -158,7 +157,7 @@ export async function sendAiRequest({
     }
     let msg = err.message || 'Неизвестная ошибка';
     if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
-      msg = 'Не удалось подключиться к серверу нейросети (Failed to fetch). Если вы в РФ — для Google Gemini обязательно нужен включенный VPN, либо переключитесь на Groq в настройках (Groq работает без VPN).';
+      msg = 'Не удалось подключиться к серверу нейросети (NetworkError / Failed to fetch). Если вы в РФ — для прямого Gemini и Groq обязательно нужен VPN, либо выберите OpenRouter в настройках ShiftySearch (он работает без VPN).';
     }
     onError(new Error(msg));
   }
@@ -239,7 +238,7 @@ async function callGeminiNativeStream({
     }
 
     if (response.status === 401 || errorDetail.includes('invalid authentication credentials') || errorDetail.includes('UNAUTHENTICATED')) {
-      throw new Error('Ключ API не привязан к Generative Language API (Ошибка 401). При создании ключа в Google AI Studio (aistudio.google.com/app/apikey) обязательно нажмите кнопку «Create API key in new project» (Создать в новом проекте). Если выбрать существующий проект Google Cloud без включенного API, ключ работать не будет.');
+      throw new Error('Ключ API не авторизован (Ошибка 401). Причины: 1) В РФ/СНГ прямой доступ к Gemini заблокирован Google (включите VPN или выберите OpenRouter в настройках). 2) В Google AI Studio (aistudio.google.com/app/apikey) обязательно создавайте ключ через кнопку «Create API key in new project».');
     }
     if (errorDetail.includes('API_KEY_INVALID') || errorDetail.includes('API key not valid')) {
       throw new Error('API-ключ Google Gemini недействителен. Убедитесь, что скопировали ключ полностью из Google AI Studio (aistudio.google.com/app/apikey).');
@@ -247,8 +246,8 @@ async function callGeminiNativeStream({
     if (errorDetail.includes('RESOURCE_EXHAUSTED')) {
       throw new Error('Превышен лимит запросов Google Gemini. Подождите 1 минуту или выберите модель gemini-1.5-flash.');
     }
-    if (errorDetail.includes('User location is not supported')) {
-      throw new Error('Google Gemini недоступен в вашем регионе без VPN (User location is not supported). Используйте VPN или выберите OpenRouter / Groq в настройках.');
+    if (response.status === 403 || errorDetail.includes('User location is not supported')) {
+      throw new Error('Google Gemini недоступен в вашем регионе без VPN (Ошибка 403 / Location not supported). Включите VPN или выберите OpenRouter в настройках ShiftySearch (OpenRouter работает без VPN).');
     }
 
     throw new Error(`Ошибка Gemini API (${response.status}): ${errorDetail || response.statusText}`);
@@ -350,6 +349,17 @@ async function callOpenAiCompatibleStream({
     } catch {
       errorDetail = await response.text();
     }
+    if (response.status === 403 || (errorDetail && errorDetail.toLowerCase().includes('forbidden'))) {
+      if (provider === 'groq') {
+        throw new Error('Groq блокирует запросы без VPN (Ошибка 403 Forbidden). Включите VPN в браузере или переключитесь в настройках на OpenRouter (он работает без VPN и предоставляет бесплатные модели Gemini и Llama).');
+      }
+      throw new Error(`Доступ заблокирован сервером (Ошибка 403 Forbidden). Если вы находитесь в РФ/СНГ, включите VPN или выберите OpenRouter в настройках ShiftySearch.`);
+    }
+
+    if (response.status === 401) {
+      throw new Error(`Неверный API-ключ (${response.status}): проверьте правильность ключа для ${provider}.`);
+    }
+
     throw new Error(`Ошибка API (${response.status}): ${errorDetail || response.statusText}`);
   }
 
