@@ -370,16 +370,15 @@
   }
 
   // src/content/island.css
-  var island_default = `/* src/content/island.css - Scoped styling for ShiftySearch Shadow DOM */
+  var island_default = `/* src/content/island.css - Minimalist & Customizable Theme for ShiftySearch */
 
 :host {
   all: initial;
   position: fixed;
   z-index: 2147483647;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-size: 14px;
+  font-size: 13.5px;
   line-height: 1.5;
-  color: #f1f5f9;
   box-sizing: border-box;
 }
 
@@ -389,26 +388,62 @@
   padding: 0;
 }
 
-/* Island Container */
+/* =========================================
+   THEME VARIABLES
+   ========================================= */
+
+/* Dark Theme (Default Minimalist Dark) */
+.shifty-island.theme-dark {
+  --shifty-bg: rgba(18, 18, 20, 0.94);
+  --shifty-header-bg: rgba(26, 26, 30, 0.7);
+  --shifty-border: rgba(255, 255, 255, 0.1);
+  --shifty-text: #f4f4f5;
+  --shifty-text-muted: #a1a1aa;
+  --shifty-card-bg: rgba(255, 255, 255, 0.04);
+  --shifty-card-border: rgba(255, 255, 255, 0.07);
+  --shifty-input-bg: rgba(28, 28, 32, 0.85);
+  --shifty-input-border: rgba(255, 255, 255, 0.12);
+  --shifty-code-bg: #0d0d0f;
+  --shifty-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Light Theme (Clean Minimalist White) */
+.shifty-island.theme-light {
+  --shifty-bg: rgba(255, 255, 255, 0.96);
+  --shifty-header-bg: rgba(244, 244, 245, 0.85);
+  --shifty-border: rgba(0, 0, 0, 0.09);
+  --shifty-text: #18181b;
+  --shifty-text-muted: #71717a;
+  --shifty-card-bg: rgba(0, 0, 0, 0.03);
+  --shifty-card-border: rgba(0, 0, 0, 0.06);
+  --shifty-input-bg: rgba(244, 244, 245, 0.9);
+  --shifty-input-border: rgba(0, 0, 0, 0.12);
+  --shifty-code-bg: #f4f4f5;
+  --shifty-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.14), 0 0 0 1px rgba(0, 0, 0, 0.07);
+}
+
+/* =========================================
+   ISLAND CONTAINER
+   ========================================= */
+
 .shifty-island {
   position: fixed;
-  background: rgba(15, 23, 42, 0.88);
-  backdrop-filter: blur(28px) saturate(190%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 20px;
-  box-shadow: 
-    0 24px 60px -12px rgba(0, 0, 0, 0.65),
-    0 8px 24px -4px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.08),
-    inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  background: var(--shifty-bg);
+  color: var(--shifty-text);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--shifty-border);
+  border-radius: 16px;
+  box-shadow: var(--shifty-shadow);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: width 0.24s cubic-bezier(0.16, 1, 0.3, 1), 
-              height 0.24s cubic-bezier(0.16, 1, 0.3, 1), 
-              opacity 0.2s ease, 
-              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1), 
+              height 0.22s cubic-bezier(0.16, 1, 0.3, 1), 
+              opacity 0.18s ease, 
+              background-color 0.2s ease,
+              color 0.2s ease,
+              transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   transform-origin: center center;
   user-select: none;
 }
@@ -416,13 +451,13 @@
 .shifty-island.hidden {
   opacity: 0;
   pointer-events: none;
-  transform: scale(0.94) translateY(8px);
+  transform: scale(0.96) translateY(6px);
 }
 
 /* Sizing presets */
 .shifty-island.size-small {
   width: var(--island-small-w, 400px);
-  height: var(--island-small-h, 460px);
+  height: var(--island-small-h, 480px);
 }
 
 .shifty-island.size-large {
@@ -430,11 +465,14 @@
   height: var(--island-large-h, 640px);
 }
 
-/* Header */
+/* =========================================
+   HEADER
+   ========================================= */
+
 .shifty-header {
-  padding: 10px 14px;
-  background: rgba(30, 41, 59, 0.55);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 12px;
+  background: var(--shifty-header-bg);
+  border-bottom: 1px solid var(--shifty-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -454,33 +492,32 @@
 }
 
 .shifty-logo-icon {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
-  color: white;
+  background: var(--shifty-accent, #18181b);
+  color: var(--shifty-accent-contrast, #ffffff);
+  transition: background-color 0.2s ease;
 }
 
 .shifty-title {
-  font-weight: 700;
+  font-weight: 600;
   font-size: 13px;
   letter-spacing: -0.01em;
-  background: linear-gradient(120deg, #f8fafc, #cbd5e1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--shifty-text);
 }
 
 .shifty-model-badge {
   font-size: 11px;
   font-weight: 500;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: rgba(99, 102, 241, 0.2);
-  border: 1px solid rgba(129, 140, 248, 0.3);
-  color: #c7d2fe;
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: var(--shifty-card-bg);
+  border: 1px solid var(--shifty-card-border);
+  color: var(--shifty-text-muted);
   max-width: 140px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -490,16 +527,16 @@
 .shifty-header-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 .shifty-btn-icon {
   background: transparent;
   border: none;
-  color: #94a3b8;
+  color: var(--shifty-text-muted);
   width: 28px;
   height: 28px;
-  border-radius: 8px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -508,8 +545,8 @@
 }
 
 .shifty-btn-icon:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #f8fafc;
+  background: var(--shifty-card-bg);
+  color: var(--shifty-text);
 }
 
 .shifty-btn-icon:active {
@@ -517,29 +554,31 @@
 }
 
 .shifty-btn-close:hover {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
+  color: #ef4444;
 }
 
-/* Chat Body */
+/* =========================================
+   BODY / CHAT
+   ========================================= */
+
 .shifty-body {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 16px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   user-select: text;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  scrollbar-color: var(--shifty-card-border) transparent;
 }
 
 .shifty-body::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 .shifty-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--shifty-card-border);
   border-radius: 3px;
 }
 
@@ -550,31 +589,33 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 12px;
-  padding: 20px 10px;
+  gap: 10px;
+  padding: 16px 10px;
 }
 
-.shifty-welcome-glow {
-  width: 52px;
-  height: 52px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed, #db2777);
+.shifty-welcome-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--shifty-accent, #18181b);
+  color: var(--shifty-accent-contrast, #ffffff);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 32px rgba(124, 58, 237, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
 }
 
 .shifty-welcome h2 {
-  font-size: 17px;
-  font-weight: 700;
-  color: #f8fafc;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--shifty-text);
+  letter-spacing: -0.01em;
 }
 
 .shifty-welcome p {
-  font-size: 13px;
-  color: #94a3b8;
-  max-width: 320px;
+  font-size: 12.5px;
+  color: var(--shifty-text-muted);
+  max-width: 300px;
   line-height: 1.4;
 }
 
@@ -582,116 +623,113 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
-  margin-top: 6px;
+  gap: 6px;
+  margin-top: 4px;
 }
 
 .shifty-chip {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  color: #cbd5e1;
+  background: var(--shifty-card-bg);
+  border: 1px solid var(--shifty-card-border);
+  padding: 5px 11px;
+  border-radius: 14px;
+  font-size: 11.5px;
+  color: var(--shifty-text);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .shifty-chip:hover {
-  background: rgba(99, 102, 241, 0.25);
-  border-color: rgba(129, 140, 248, 0.4);
-  color: #fff;
+  border-color: var(--shifty-accent, #000);
+  background: var(--shifty-card-border);
   transform: translateY(-1px);
 }
 
-/* Message Styles */
+/* Messages */
 .shifty-message {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  animation: fadeIn 0.2s ease forwards;
+  gap: 4px;
+  animation: fadeIn 0.15s ease forwards;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .shifty-msg-user {
   align-self: flex-end;
   max-width: 85%;
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
-  color: #ffffff;
-  padding: 10px 14px;
-  border-radius: 16px 16px 4px 16px;
-  font-size: 13.5px;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+  background: var(--shifty-accent, #18181b);
+  color: var(--shifty-accent-contrast, #ffffff);
+  padding: 8px 13px;
+  border-radius: 14px 14px 4px 14px;
+  font-size: 13px;
   word-break: break-word;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .shifty-msg-assistant {
   align-self: flex-start;
   width: 100%;
-  background: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 14px 16px;
-  border-radius: 16px 16px 16px 4px;
-  font-size: 13.5px;
-  color: #f1f5f9;
-  line-height: 1.6;
+  background: var(--shifty-card-bg);
+  border: 1px solid var(--shifty-card-border);
+  padding: 12px 14px;
+  border-radius: 14px 14px 14px 4px;
+  font-size: 13px;
+  color: var(--shifty-text);
+  line-height: 1.55;
   word-break: break-word;
 }
 
 /* Links & Sources Box */
 .shifty-links-section {
-  margin-top: 12px;
-  padding: 12px;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  border-radius: 12px;
+  margin-top: 10px;
+  padding: 10px;
+  background: var(--shifty-input-bg);
+  border: 1px solid var(--shifty-card-border);
+  border-radius: 10px;
 }
 
 .shifty-links-header {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
-  color: #38bdf8;
+  color: var(--shifty-accent, var(--shifty-text));
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 5px;
+  margin-bottom: 6px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
 }
 
 .shifty-links-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .shifty-link-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 7px 10px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
+  gap: 8px;
+  padding: 6px 9px;
+  background: var(--shifty-card-bg);
+  border: 1px solid var(--shifty-card-border);
+  border-radius: 6px;
   text-decoration: none;
-  color: #cbd5e1;
+  color: var(--shifty-text);
   transition: all 0.15s ease;
 }
 
 .shifty-link-card:hover {
-  background: rgba(56, 189, 248, 0.15);
-  border-color: rgba(56, 189, 248, 0.35);
-  color: #ffffff;
+  border-color: var(--shifty-accent, var(--shifty-text));
   transform: translateX(2px);
 }
 
 .shifty-link-title {
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -700,51 +738,48 @@
 
 .shifty-link-url {
   font-size: 11px;
-  color: #64748b;
+  color: var(--shifty-text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 140px;
+  max-width: 130px;
 }
 
-/* Markdown elements */
+/* Markdown typography */
 .shifty-p {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 .shifty-p:last-child {
   margin-bottom: 0;
 }
 .shifty-h1, .shifty-h2, .shifty-h3 {
-  color: #f8fafc;
-  font-weight: 700;
-  margin: 12px 0 6px 0;
+  color: var(--shifty-text);
+  font-weight: 600;
+  margin: 10px 0 4px 0;
 }
-.shifty-h1 { font-size: 16px; }
-.shifty-h2 { font-size: 15px; }
-.shifty-h3 { font-size: 14px; color: #a5b4fc; }
+.shifty-h1 { font-size: 15px; }
+.shifty-h2 { font-size: 14px; }
+.shifty-h3 { font-size: 13px; }
 
 .shifty-ul {
-  padding-left: 20px;
-  margin-bottom: 10px;
+  padding-left: 18px;
+  margin-bottom: 8px;
 }
 .shifty-li {
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 .shifty-quote {
-  border-left: 3px solid #6366f1;
-  padding-left: 10px;
-  color: #94a3b8;
-  margin: 8px 0;
+  border-left: 2px solid var(--shifty-accent, #71717a);
+  padding-left: 8px;
+  color: var(--shifty-text-muted);
+  margin: 6px 0;
   font-style: italic;
 }
 .shifty-link {
-  color: #38bdf8;
+  color: var(--shifty-accent, #3b82f6);
   text-decoration: underline;
-  text-underline-offset: 3px;
+  text-underline-offset: 2px;
   word-break: break-all;
-}
-.shifty-link:hover {
-  color: #7dd3fc;
 }
 .shifty-ext-icon {
   display: inline-block;
@@ -752,59 +787,59 @@
   margin-left: 2px;
 }
 
-/* Code block */
+/* Code Block */
 .shifty-code-block {
-  background: #090d16;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--shifty-code-bg);
+  border: 1px solid var(--shifty-card-border);
   border-radius: 8px;
-  margin: 10px 0;
+  margin: 8px 0;
   overflow: hidden;
 }
 .shifty-code-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  font-size: 11px;
-  color: #94a3b8;
+  padding: 3px 8px;
+  background: var(--shifty-card-bg);
+  border-bottom: 1px solid var(--shifty-card-border);
+  font-size: 10.5px;
+  color: var(--shifty-text-muted);
 }
 .shifty-code-block pre {
-  padding: 10px;
+  padding: 8px;
   overflow-x: auto;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 12.5px;
-  color: #e2e8f0;
+  font-size: 12px;
+  color: var(--shifty-text);
 }
 .shifty-inline-code {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 2px 5px;
+  background: var(--shifty-card-border);
+  padding: 1px 4px;
   border-radius: 4px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 12px;
-  color: #f472b6;
+  font-size: 11.5px;
+  color: var(--shifty-text);
 }
 .shifty-copy-btn {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--shifty-card-border);
   border: none;
-  color: #cbd5e1;
-  padding: 2px 8px;
+  color: var(--shifty-text);
+  padding: 2px 6px;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 10.5px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .shifty-copy-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
+  background: var(--shifty-text);
+  color: var(--shifty-bg);
 }
 
-/* Typing cursor animation */
+/* Typing cursor */
 .shifty-typing::after {
   content: '\u258B';
   display: inline-block;
-  color: #818cf8;
+  color: var(--shifty-accent, var(--shifty-text));
   margin-left: 2px;
   animation: blink 0.8s infinite;
 }
@@ -813,31 +848,34 @@
   50% { opacity: 0; }
 }
 
-/* Footer / Input area */
+/* =========================================
+   FOOTER / INPUT
+   ========================================= */
+
 .shifty-footer {
-  padding: 12px 14px;
-  background: rgba(30, 41, 59, 0.7);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 12px;
+  background: var(--shifty-header-bg);
+  border-top: 1px solid var(--shifty-border);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
 .shifty-input-wrapper {
   display: flex;
   align-items: flex-end;
-  gap: 8px;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
-  padding: 8px 10px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  gap: 6px;
+  background: var(--shifty-input-bg);
+  border: 1px solid var(--shifty-input-border);
+  border-radius: 12px;
+  padding: 6px 8px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .shifty-input-wrapper:focus-within {
-  border-color: #818cf8;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+  border-color: var(--shifty-accent, var(--shifty-text));
+  box-shadow: 0 0 0 1px var(--shifty-accent, var(--shifty-text));
 }
 
 .shifty-textarea {
@@ -845,38 +883,38 @@
   background: transparent;
   border: none;
   outline: none;
-  color: #f8fafc;
+  color: var(--shifty-text);
   font-family: inherit;
-  font-size: 13.5px;
+  font-size: 13px;
   line-height: 1.4;
   resize: none;
-  max-height: 120px;
-  min-height: 22px;
+  max-height: 110px;
+  min-height: 20px;
   padding: 2px 0;
 }
 
 .shifty-textarea::placeholder {
-  color: #64748b;
+  color: var(--shifty-text-muted);
 }
 
 .shifty-send-btn {
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: var(--shifty-accent, #18181b);
+  color: var(--shifty-accent-contrast, #ffffff);
   border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
   cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
 }
 
 .shifty-send-btn:hover {
+  opacity: 0.9;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
 }
 
 .shifty-send-btn:active {
@@ -884,7 +922,8 @@
 }
 
 .shifty-send-btn.stop {
-  background: #ef4444;
+  background: #ef4444 !important;
+  color: #ffffff !important;
 }
 
 .shifty-footer-meta {
@@ -892,7 +931,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 11px;
-  color: #64748b;
+  color: var(--shifty-text-muted);
   padding: 0 2px;
 }
 
@@ -902,22 +941,25 @@
 }
 
 .shifty-kbd {
-  background: rgba(255, 255, 255, 0.08);
-  padding: 1px 5px;
+  background: var(--shifty-card-bg);
+  padding: 1px 4px;
   border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
-  font-size: 10.5px;
+  border: 1px solid var(--shifty-card-border);
+  color: var(--shifty-text);
+  font-size: 10px;
 }
 
-/* Quick Settings Modal inside Island */
+/* =========================================
+   SETTINGS MODAL INSIDE ISLAND
+   ========================================= */
+
 .shifty-modal {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(15, 23, 42, 0.95);
+  background: var(--shifty-bg);
   backdrop-filter: blur(20px);
   display: flex;
   flex-direction: column;
@@ -930,92 +972,138 @@
 }
 
 .shifty-modal-header {
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--shifty-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .shifty-modal-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: #f8fafc;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--shifty-text);
 }
 
 .shifty-modal-body {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
+  scrollbar-width: thin;
 }
 
 .shifty-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .shifty-label {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
-  color: #cbd5e1;
+  color: var(--shifty-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .shifty-input, .shifty-select {
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  padding: 8px 12px;
-  color: #f8fafc;
-  font-size: 13px;
+  background: var(--shifty-input-bg);
+  border: 1px solid var(--shifty-input-border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  color: var(--shifty-text);
+  font-size: 12.5px;
   outline: none;
   font-family: inherit;
   transition: border-color 0.15s ease;
 }
 
 .shifty-input:focus, .shifty-select:focus {
-  border-color: #818cf8;
+  border-color: var(--shifty-accent, var(--shifty-text));
 }
 
 .shifty-input-row {
   display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* Color Picker & Theme controls */
+.shifty-color-swatches {
+  display: flex;
+  align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.shifty-color-chip {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  position: relative;
+}
+
+.shifty-color-chip:hover {
+  transform: scale(1.15);
+}
+
+.shifty-color-chip.active {
+  border-color: var(--shifty-text);
+}
+
+.shifty-color-custom {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.shifty-color-custom::-webkit-color-swatch {
+  border-radius: 6px;
+  border: 1px solid var(--shifty-input-border);
 }
 
 .shifty-btn-primary {
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: var(--shifty-accent, #18181b);
+  color: var(--shifty-accent-contrast, #ffffff);
   border: none;
-  color: white;
-  padding: 9px 14px;
-  border-radius: 10px;
-  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: opacity 0.15s ease;
 }
 
 .shifty-btn-primary:hover {
-  filter: brightness(1.1);
+  opacity: 0.9;
 }
 
 .shifty-btn-secondary {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-size: 12.5px;
+  background: var(--shifty-card-bg);
+  border: 1px solid var(--shifty-card-border);
+  color: var(--shifty-text);
+  padding: 7px 11px;
+  border-radius: 8px;
+  font-size: 12px;
   cursor: pointer;
   transition: all 0.15s ease;
   text-align: center;
 }
 
 .shifty-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
+  background: var(--shifty-card-border);
 }
 
 /* Resize corner handle */
@@ -1023,11 +1111,16 @@
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   cursor: nwse-resize;
-  border-bottom-right-radius: 20px;
-  background: linear-gradient(135deg, transparent 50%, rgba(255, 255, 255, 0.25) 50%);
+  border-bottom-right-radius: 16px;
+  background: linear-gradient(135deg, transparent 50%, var(--shifty-text-muted) 50%);
+  opacity: 0.4;
+}
+
+.shifty-resize-handle:hover {
+  opacity: 0.8;
 }
 `;
 
@@ -1035,6 +1128,15 @@
   (function initShiftySearch() {
     if (window.__SHIFTY_SEARCH_INITED__) return;
     window.__SHIFTY_SEARCH_INITED__ = true;
+    const PRESET_COLORS = [
+      { name: "\u041C\u043E\u043D\u043E\u0445\u0440\u043E\u043C", hex: "#18181b" },
+      { name: "\u0421\u0438\u043D\u0438\u0439", hex: "#2563eb" },
+      { name: "\u0418\u0437\u0443\u043C\u0440\u0443\u0434\u043D\u044B\u0439", hex: "#10b981" },
+      { name: "\u0424\u0438\u043E\u043B\u0435\u0442\u043E\u0432\u044B\u0439", hex: "#8b5cf6" },
+      { name: "\u041E\u0440\u0430\u043D\u0436\u0435\u0432\u044B\u0439", hex: "#f97316" },
+      { name: "\u0420\u043E\u0437\u043E\u0432\u044B\u0439", hex: "#ec4899" },
+      { name: "\u0413\u0440\u0430\u0444\u0438\u0442", hex: "#475569" }
+    ];
     const DEFAULT_CONFIG = {
       provider: "gemini",
       apiKey: "",
@@ -1043,12 +1145,15 @@
       systemPrompt: DEFAULT_SYSTEM_PROMPT,
       hotkeyToggle: "Alt+Shift+S",
       hotkeyResize: "Alt+Shift+Z",
-      smallWidth: 420,
+      smallWidth: 400,
       smallHeight: 480,
-      largeWidth: 760,
+      largeWidth: 740,
       largeHeight: 640,
       currentSize: "small",
       // 'small' | 'large'
+      theme: "dark",
+      // 'dark' | 'light'
+      accentColor: "#2563eb",
       autoSendSelection: true,
       position: { right: 24, top: 24 }
     };
@@ -1059,6 +1164,16 @@
     let dragOffset = { x: 0, y: 0 };
     let currentAbortController = null;
     let chatHistory = [];
+    function getContrastColor(hex) {
+      if (!hex) return "#ffffff";
+      let c = hex.replace("#", "");
+      if (c.length === 3) c = c.split("").map((x) => x + x).join("");
+      const r = parseInt(c.substr(0, 2), 16) || 0;
+      const g = parseInt(c.substr(2, 2), 16) || 0;
+      const b = parseInt(c.substr(4, 2), 16) || 0;
+      const yiq = (r * 299 + g * 587 + b * 114) / 1e3;
+      return yiq >= 150 ? "#09090b" : "#ffffff";
+    }
     const hostEl = document.createElement("div");
     hostEl.id = "shiftysearch-host";
     const shadowRoot = hostEl.attachShadow({ mode: "open" });
@@ -1067,13 +1182,13 @@
     styleEl.textContent = island_default;
     shadowRoot.appendChild(styleEl);
     const islandEl = document.createElement("div");
-    islandEl.className = "shifty-island size-small hidden";
+    islandEl.className = "shifty-island size-small theme-dark hidden";
     islandEl.innerHTML = `
     <!-- Header -->
     <div class="shifty-header" id="shifty-header">
       <div class="shifty-brand">
-        <div class="shifty-logo-icon">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+        <div class="shifty-logo-icon" id="shifty-logo-icon">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07l14.14-14.14"/>
           </svg>
         </div>
@@ -1081,44 +1196,49 @@
         <span class="shifty-model-badge" id="shifty-model-badge">Gemini</span>
       </div>
       <div class="shifty-header-actions">
-        <button class="shifty-btn-icon" id="shifty-btn-clear" title="\u041E\u0447\u0438\u0441\u0442\u0438\u0442\u044C \u0434\u0438\u0430\u043B\u043E\u0433 (\u041D\u043E\u0432\u044B\u0439 \u043F\u043E\u0438\u0441\u043A)">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+        <button class="shifty-btn-icon" id="shifty-btn-theme" title="\u0421\u043C\u0435\u043D\u0438\u0442\u044C \u0442\u0435\u043C\u0443 (\u0421\u0432\u0435\u0442\u043B\u0430\u044F / \u0422\u0435\u043C\u043D\u0430\u044F)">
+          <svg id="shifty-icon-theme" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <!-- Rendered dynamically -->
+          </svg>
+        </button>
+        <button class="shifty-btn-icon" id="shifty-btn-clear" title="\u041E\u0447\u0438\u0441\u0442\u0438\u0442\u044C \u0434\u0438\u0430\u043B\u043E\u0433">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/>
           </svg>
         </button>
-        <button class="shifty-btn-icon" id="shifty-btn-resize" title="\u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C \u0440\u0430\u0437\u043C\u0435\u0440 (\u0425\u043E\u0442\u043A\u0435\u0439)">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+        <button class="shifty-btn-icon" id="shifty-btn-resize" title="\u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C \u043C\u0430\u0441\u0448\u0442\u0430\u0431">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
           </svg>
         </button>
         <button class="shifty-btn-icon" id="shifty-btn-settings" title="\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
           </svg>
         </button>
         <button class="shifty-btn-icon shifty-btn-close" id="shifty-btn-close" title="\u0417\u0430\u043A\u0440\u044B\u0442\u044C (Esc)">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M18 6 6 18M6 6l12 12"/>
           </svg>
         </button>
       </div>
     </div>
 
-    <!-- Body / Chat area -->
+    <!-- Body / Chat -->
     <div class="shifty-body" id="shifty-body">
       <div class="shifty-welcome" id="shifty-welcome">
-        <div class="shifty-welcome-glow">
-          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="white" stroke-width="2">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        <div class="shifty-welcome-dot">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07l14.14-14.14"/>
           </svg>
         </div>
-        <h2>ShiftySearch AI</h2>
-        <p>\u041C\u0433\u043D\u043E\u0432\u0435\u043D\u043D\u044B\u0435 \u043E\u0442\u0432\u0435\u0442\u044B \u043B\u044E\u0431\u043E\u0439 \u043D\u0435\u0439\u0440\u043E\u0441\u0435\u0442\u0438 \u0441 \u0441\u0441\u044B\u043B\u043A\u0430\u043C\u0438 \u0438 \u0438\u0441\u0442\u043E\u0447\u043D\u0438\u043A\u0430\u043C\u0438.</p>
+        <h2>ShiftySearch</h2>
+        <p>\u041C\u0438\u043D\u0438\u043C\u0430\u043B\u0438\u0441\u0442\u0438\u0447\u043D\u044B\u0439 AI-\u043F\u043E\u043C\u043E\u0449\u043D\u0438\u043A \u0441 \u043F\u043E\u0438\u0441\u043A\u043E\u043C \u0438\u0441\u0442\u043E\u0447\u043D\u0438\u043A\u043E\u0432 \u0438 \u0441\u0441\u044B\u043B\u043E\u043A.</p>
         <div class="shifty-chips">
           <button class="shifty-chip" data-prompt="\u041D\u0430\u0439\u0434\u0438 \u043B\u0443\u0447\u0448\u0438\u0435 \u0441\u0442\u0430\u0442\u044C\u0438 \u0438 \u0438\u0441\u0442\u043E\u0447\u043D\u0438\u043A\u0438 \u043F\u043E: ">\u{1F50D} \u041F\u043E\u0438\u0441\u043A \u0438 \u0441\u0441\u044B\u043B\u043A\u0438</button>
-          <button class="shifty-chip" data-prompt="\u041A\u0440\u0430\u0442\u043A\u043E \u043E\u0431\u044A\u044F\u0441\u043D\u0438 \u0441\u0443\u0442\u044C \u043F\u0440\u043E\u0441\u0442\u044B\u043C\u0438 \u0441\u043B\u043E\u0432\u0430\u043C\u0438: ">\u{1F4A1} \u041E\u0431\u044A\u044F\u0441\u043D\u0438 \u043F\u0440\u043E\u0441\u0442\u044B\u043C\u0438 \u0441\u043B\u043E\u0432\u0430\u043C\u0438</button>
-          <button class="shifty-chip" data-prompt="\u041A\u0430\u043A \u0440\u0435\u0448\u0438\u0442\u044C \u044D\u0442\u0443 \u0437\u0430\u0434\u0430\u0447\u0443 \u0432 \u043A\u043E\u0434\u0435: ">\u{1F4BB} \u041D\u0430\u043F\u0438\u0448\u0438 \u043F\u0440\u0438\u043C\u0435\u0440 \u043A\u043E\u0434\u0430</button>
+          <button class="shifty-chip" data-prompt="\u041A\u0440\u0430\u0442\u043A\u043E \u043E\u0431\u044A\u044F\u0441\u043D\u0438 \u0441\u0443\u0442\u044C: ">\u{1F4A1} \u041E\u0431\u044A\u044F\u0441\u043D\u0438 \u0441\u0443\u0442\u044C</button>
+          <button class="shifty-chip" data-prompt="\u041A\u0430\u043A \u043D\u0430\u043F\u0438\u0441\u0430\u0442\u044C \u043A\u043E\u0434 \u0434\u043B\u044F: ">\u{1F4BB} \u041F\u0440\u0438\u043C\u0435\u0440 \u043A\u043E\u0434\u0430</button>
         </div>
       </div>
       <div id="shifty-messages-list"></div>
@@ -1127,16 +1247,16 @@
     <!-- Footer / Input -->
     <div class="shifty-footer">
       <div class="shifty-input-wrapper">
-        <textarea class="shifty-textarea" id="shifty-input" rows="1" placeholder="\u0417\u0430\u0434\u0430\u0439\u0442\u0435 \u0432\u043E\u043F\u0440\u043E\u0441 \u043D\u0435\u0439\u0440\u043E\u0441\u0435\u0442\u0438... (Shift+Enter \u0434\u043B\u044F \u043D\u043E\u0432\u043E\u0439 \u0441\u0442\u0440\u043E\u043A\u0438)"></textarea>
+        <textarea class="shifty-textarea" id="shifty-input" rows="1" placeholder="\u0417\u0430\u0434\u0430\u0439\u0442\u0435 \u0432\u043E\u043F\u0440\u043E\u0441 \u043D\u0435\u0439\u0440\u043E\u0441\u0435\u0442\u0438..."></textarea>
         <button class="shifty-send-btn" id="shifty-btn-send" title="\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C (Enter)">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
           </svg>
         </button>
       </div>
       <div class="shifty-footer-meta">
         <div class="shifty-shortcut-hint">
-          <span>\u0420\u0430\u0437\u043C\u0435\u0440: <span class="shifty-kbd" id="shifty-kbd-resize">Alt+Shift+Z</span></span>
+          <span>\u041C\u0430\u0441\u0448\u0442\u0430\u0431: <span class="shifty-kbd" id="shifty-kbd-resize">Alt+Shift+Z</span></span>
           <span>\u0417\u0430\u043A\u0440\u044B\u0442\u044C: <span class="shifty-kbd">Esc</span></span>
         </div>
         <span id="shifty-status-msg"></span>
@@ -1146,20 +1266,40 @@
     <!-- In-Island Quick Settings Modal -->
     <div class="shifty-modal hidden" id="shifty-modal">
       <div class="shifty-modal-header">
-        <span class="shifty-modal-title">\u2699\uFE0F \u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 ShiftySearch</span>
+        <span class="shifty-modal-title">\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u043E\u0444\u043E\u0440\u043C\u043B\u0435\u043D\u0438\u044F \u0438 \u043D\u0435\u0439\u0440\u043E\u0441\u0435\u0442\u0438</span>
         <button class="shifty-btn-icon" id="shifty-modal-close">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M18 6 6 18M6 6l12 12"/>
           </svg>
         </button>
       </div>
       <div class="shifty-modal-body">
+        <!-- Theme & Color settings -->
+        <div class="shifty-field">
+          <label class="shifty-label">\u0422\u0435\u043C\u0430 \u043E\u0444\u043E\u0440\u043C\u043B\u0435\u043D\u0438\u044F</label>
+          <select class="shifty-select" id="shifty-setting-theme">
+            <option value="dark">\u0422\u0451\u043C\u043D\u0430\u044F (\u041C\u0438\u043D\u0438\u043C\u0430\u043B\u0438\u0441\u0442\u0438\u0447\u043D\u044B\u0439 \u0447\u0451\u0440\u043D\u044B\u0439)</option>
+            <option value="light">\u0421\u0432\u0435\u0442\u043B\u0430\u044F (\u041C\u0438\u043D\u0438\u043C\u0430\u043B\u0438\u0441\u0442\u0438\u0447\u043D\u044B\u0439 \u0431\u0435\u043B\u044B\u0439)</option>
+          </select>
+        </div>
+
+        <div class="shifty-field">
+          <label class="shifty-label">\u0426\u0432\u0435\u0442 \u0430\u043A\u0446\u0435\u043D\u0442\u0430 (\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u0438\u0439 \u0446\u0432\u0435\u0442)</label>
+          <div class="shifty-color-swatches" id="shifty-swatches-container"></div>
+          <div class="shifty-input-row" style="margin-top: 6px;">
+            <span style="font-size:12px; color:var(--shifty-text-muted);">\u0421\u0432\u043E\u0439 \u0446\u0432\u0435\u0442:</span>
+            <input type="color" class="shifty-color-custom" id="shifty-custom-color-picker" value="#2563eb">
+            <input type="text" class="shifty-input" id="shifty-custom-color-hex" value="#2563eb" style="width: 90px; text-align: center; text-transform: uppercase;">
+          </div>
+        </div>
+
+        <!-- AI Provider -->
         <div class="shifty-field">
           <label class="shifty-label">\u041D\u0435\u0439\u0440\u043E\u0441\u0435\u0442\u044C / \u041F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440</label>
           <select class="shifty-select" id="shifty-setting-provider">
             <option value="gemini">Google Gemini (Gemini 2.0 Flash / 1.5)</option>
             <option value="openai">OpenAI (ChatGPT / GPT-4o / o3-mini)</option>
-            <option value="openrouter">OpenRouter (Perplexity Sonar / DeepSeek / \u0412\u0441\u0435 \u043C\u043E\u0434\u0435\u043B\u0438)</option>
+            <option value="openrouter">OpenRouter (Perplexity Sonar / DeepSeek / \u0412\u0441\u0435)</option>
             <option value="anthropic">Anthropic Claude (Claude 3.5 Sonnet / Haiku)</option>
             <option value="groq">Groq (\u0421\u0432\u0435\u0440\u0445\u0431\u044B\u0441\u0442\u0440\u044B\u0439 Llama 3.3)</option>
             <option value="deepseek">DeepSeek (DeepSeek V3 / R1)</option>
@@ -1173,28 +1313,28 @@
             <input type="password" class="shifty-input" id="shifty-setting-apikey" placeholder="\u0412\u0441\u0442\u0430\u0432\u044C\u0442\u0435 \u0432\u0430\u0448 API-\u043A\u043B\u044E\u0447..." style="flex:1;">
             <button class="shifty-btn-secondary" id="shifty-btn-toggle-key" type="button">\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C</button>
           </div>
-          <small style="color: #94a3b8; font-size: 11px;" id="shifty-key-help"></small>
+          <small style="color: var(--shifty-text-muted); font-size: 11px;" id="shifty-key-help"></small>
         </div>
 
         <div class="shifty-field">
           <label class="shifty-label">\u041C\u043E\u0434\u0435\u043B\u044C</label>
-          <input type="text" class="shifty-input" id="shifty-setting-model" placeholder="\u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440: gemini-2.0-flash">
+          <input type="text" class="shifty-input" id="shifty-setting-model" placeholder="gemini-2.0-flash">
         </div>
 
         <div class="shifty-field" id="shifty-field-endpoint" style="display:none;">
-          <label class="shifty-label">\u0411\u0430\u0437\u043E\u0432\u044B\u0439 URL (API Endpoint)</label>
+          <label class="shifty-label">\u0411\u0430\u0437\u043E\u0432\u044B\u0439 URL (Endpoint)</label>
           <input type="text" class="shifty-input" id="shifty-setting-baseurl" placeholder="http://localhost:11434/v1/chat/completions">
         </div>
 
         <div class="shifty-field">
           <label class="shifty-label">\u0413\u043E\u0440\u044F\u0447\u0438\u0435 \u043A\u043B\u0430\u0432\u0438\u0448\u0438 (In-page Hotkeys)</label>
           <div class="shifty-input-row" style="margin-bottom: 6px;">
-            <span style="font-size:12px; color:#94a3b8; width: 140px; align-self:center;">\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u043E\u0441\u0442\u0440\u043E\u0432\u043E\u043A:</span>
+            <span style="font-size:12px; color:var(--shifty-text-muted); width: 130px;">\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u043E\u0441\u0442\u0440\u043E\u0432\u043E\u043A:</span>
             <input type="text" class="shifty-input" id="shifty-setting-key-toggle" readonly style="flex:1; text-align:center;">
             <button class="shifty-btn-secondary" id="shifty-record-key-toggle">\u0417\u0430\u043F\u0438\u0441\u044C</button>
           </div>
           <div class="shifty-input-row">
-            <span style="font-size:12px; color:#94a3b8; width: 140px; align-self:center;">\u0421\u043C\u0435\u043D\u0438\u0442\u044C \u043C\u0430\u0441\u0448\u0442\u0430\u0431:</span>
+            <span style="font-size:12px; color:var(--shifty-text-muted); width: 130px;">\u0421\u043C\u0435\u043D\u0438\u0442\u044C \u043C\u0430\u0441\u0448\u0442\u0430\u0431:</span>
             <input type="text" class="shifty-input" id="shifty-setting-key-resize" readonly style="flex:1; text-align:center;">
             <button class="shifty-btn-secondary" id="shifty-record-key-resize">\u0417\u0430\u043F\u0438\u0441\u044C</button>
           </div>
@@ -1203,12 +1343,12 @@
         <div class="shifty-field">
           <label class="shifty-label">\u0420\u0430\u0437\u043C\u0435\u0440\u044B \u043E\u0441\u0442\u0440\u043E\u0432\u043A\u0430 (\u0428\u0438\u0440\u0438\u043D\u0430 \xD7 \u0412\u044B\u0441\u043E\u0442\u0430 px)</label>
           <div class="shifty-input-row">
-            <span style="font-size:12px; color:#94a3b8; width: 70px; align-self:center;">\u041C\u0438\u043D\u0438:</span>
+            <span style="font-size:12px; color:var(--shifty-text-muted); width: 60px;">\u041C\u0438\u043D\u0438:</span>
             <input type="number" class="shifty-input" id="shifty-setting-small-w" min="300" max="800" style="flex:1;">
             <input type="number" class="shifty-input" id="shifty-setting-small-h" min="200" max="900" style="flex:1;">
           </div>
           <div class="shifty-input-row" style="margin-top: 6px;">
-            <span style="font-size:12px; color:#94a3b8; width: 70px; align-self:center;">\u0411\u043E\u043B\u044C\u0448\u043E\u0439:</span>
+            <span style="font-size:12px; color:var(--shifty-text-muted); width: 60px;">\u0411\u043E\u043B\u044C\u0448\u043E\u0439:</span>
             <input type="number" class="shifty-input" id="shifty-setting-large-w" min="400" max="1400" style="flex:1;">
             <input type="number" class="shifty-input" id="shifty-setting-large-h" min="300" max="1200" style="flex:1;">
           </div>
@@ -1216,7 +1356,7 @@
 
         <div style="display: flex; gap: 8px; margin-top: 8px;">
           <button class="shifty-btn-primary" id="shifty-btn-save-settings" style="flex: 1;">\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438</button>
-          <button class="shifty-btn-secondary" id="shifty-btn-open-options">\u041F\u043E\u043B\u043D\u044B\u0435 \u043E\u043F\u0446\u0438\u0438 \u2197</button>
+          <button class="shifty-btn-secondary" id="shifty-btn-open-options">\u0412\u0441\u0435 \u043E\u043F\u0446\u0438\u0438 \u2197</button>
         </div>
       </div>
     </div>
@@ -1232,6 +1372,8 @@
     const btnResize = shadowRoot.getElementById("shifty-btn-resize");
     const btnClear = shadowRoot.getElementById("shifty-btn-clear");
     const btnSettings = shadowRoot.getElementById("shifty-btn-settings");
+    const btnTheme = shadowRoot.getElementById("shifty-btn-theme");
+    const iconTheme = shadowRoot.getElementById("shifty-icon-theme");
     const bodyEl = shadowRoot.getElementById("shifty-body");
     const welcomeEl = shadowRoot.getElementById("shifty-welcome");
     const messagesListEl = shadowRoot.getElementById("shifty-messages-list");
@@ -1240,6 +1382,10 @@
     const modalCloseBtn = shadowRoot.getElementById("shifty-modal-close");
     const resizeHandle = shadowRoot.getElementById("shifty-resize-handle");
     const kbdResizeEl = shadowRoot.getElementById("shifty-kbd-resize");
+    const selectTheme = shadowRoot.getElementById("shifty-setting-theme");
+    const swatchesContainer = shadowRoot.getElementById("shifty-swatches-container");
+    const customColorPicker = shadowRoot.getElementById("shifty-custom-color-picker");
+    const customColorHex = shadowRoot.getElementById("shifty-custom-color-hex");
     const selectProvider = shadowRoot.getElementById("shifty-setting-provider");
     const inputApiKey = shadowRoot.getElementById("shifty-setting-apikey");
     const inputModel = shadowRoot.getElementById("shifty-setting-model");
@@ -1257,15 +1403,59 @@
     const inputLargeH = shadowRoot.getElementById("shifty-setting-large-h");
     const btnSaveSettings = shadowRoot.getElementById("shifty-btn-save-settings");
     const btnOpenOptions = shadowRoot.getElementById("shifty-btn-open-options");
-    function loadConfig() {
-      chrome.storage.local.get(DEFAULT_CONFIG, (stored) => {
-        config = { ...DEFAULT_CONFIG, ...stored };
-        applyConfigToStyles();
-        updateModelBadge();
-        restorePosition();
+    function initSwatches() {
+      swatchesContainer.innerHTML = "";
+      PRESET_COLORS.forEach((c) => {
+        const chip = document.createElement("div");
+        chip.className = `shifty-color-chip ${config.accentColor.toLowerCase() === c.hex.toLowerCase() ? "active" : ""}`;
+        chip.style.backgroundColor = c.hex;
+        chip.title = c.name;
+        chip.addEventListener("click", () => {
+          applyAccentColor(c.hex);
+        });
+        swatchesContainer.appendChild(chip);
       });
     }
-    function applyConfigToStyles() {
+    function applyAccentColor(hex) {
+      config.accentColor = hex;
+      customColorPicker.value = hex;
+      customColorHex.value = hex.toUpperCase();
+      islandEl.style.setProperty("--shifty-accent", hex);
+      islandEl.style.setProperty("--shifty-accent-contrast", getContrastColor(hex));
+      initSwatches();
+    }
+    customColorPicker.addEventListener("input", (e) => {
+      applyAccentColor(e.target.value);
+    });
+    customColorHex.addEventListener("change", (e) => {
+      let val = e.target.value.trim();
+      if (!val.startsWith("#")) val = "#" + val;
+      if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+        applyAccentColor(val);
+      }
+    });
+    function applyThemeAndStyles() {
+      islandEl.classList.remove("theme-dark", "theme-light");
+      islandEl.classList.add(config.theme === "light" ? "theme-light" : "theme-dark");
+      islandEl.style.setProperty("--shifty-accent", config.accentColor);
+      islandEl.style.setProperty("--shifty-accent-contrast", getContrastColor(config.accentColor));
+      if (config.theme === "light") {
+        iconTheme.innerHTML = `
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      `;
+      } else {
+        iconTheme.innerHTML = `
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/>
+        <line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/>
+        <line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      `;
+      }
       islandEl.style.setProperty("--island-small-w", `${config.smallWidth}px`);
       islandEl.style.setProperty("--island-small-h", `${config.smallHeight}px`);
       islandEl.style.setProperty("--island-large-w", `${config.largeWidth}px`);
@@ -1280,6 +1470,15 @@
       if (kbdResizeEl) {
         kbdResizeEl.textContent = config.hotkeyResize;
       }
+    }
+    function loadConfig() {
+      chrome.storage.local.get(DEFAULT_CONFIG, (stored) => {
+        config = { ...DEFAULT_CONFIG, ...stored };
+        applyThemeAndStyles();
+        initSwatches();
+        updateModelBadge();
+        restorePosition();
+      });
     }
     function updateModelBadge() {
       const prov = PROVIDERS[config.provider] || PROVIDERS.gemini;
@@ -1318,6 +1517,13 @@
         islandEl.classList.add("hidden");
         modalEl.classList.add("hidden");
       }
+    }
+    function toggleTheme() {
+      config.theme = config.theme === "light" ? "dark" : "light";
+      chrome.storage.local.set({ theme: config.theme }, () => {
+        applyThemeAndStyles();
+        if (selectTheme) selectTheme.value = config.theme;
+      });
     }
     function toggleSize() {
       if (config.currentSize === "small") {
@@ -1373,7 +1579,7 @@
       const startH = islandEl.offsetHeight;
       function onResizeMove(moveEvent) {
         if (!isResizing) return;
-        const newW = Math.max(320, startW + (moveEvent.clientX - startX));
+        const newW = Math.max(300, startW + (moveEvent.clientX - startX));
         const newH = Math.max(260, startH + (moveEvent.clientY - startY));
         if (config.currentSize === "small") {
           config.smallWidth = newW;
@@ -1442,7 +1648,7 @@
     }, true);
     inputEl.addEventListener("input", () => {
       inputEl.style.height = "auto";
-      inputEl.style.height = `${Math.min(120, inputEl.scrollHeight)}px`;
+      inputEl.style.height = `${Math.min(110, inputEl.scrollHeight)}px`;
     });
     inputEl.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
@@ -1461,6 +1667,7 @@
     });
     btnClose.addEventListener("click", () => toggleIsland(false));
     btnResize.addEventListener("click", toggleSize);
+    btnTheme.addEventListener("click", toggleTheme);
     btnClear.addEventListener("click", clearChat);
     btnSettings.addEventListener("click", openSettingsModal);
     shadowRoot.querySelectorAll(".shifty-chip").forEach((chip) => {
@@ -1469,7 +1676,7 @@
         inputEl.value = prompt;
         inputEl.focus();
         inputEl.style.height = "auto";
-        inputEl.style.height = `${Math.min(120, inputEl.scrollHeight)}px`;
+        inputEl.style.height = `${Math.min(110, inputEl.scrollHeight)}px`;
       });
     });
     function clearChat() {
@@ -1487,7 +1694,7 @@
         btnSend.classList.add("stop");
         btnSend.title = "\u041E\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u044E";
         btnSend.innerHTML = `
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
           <rect x="6" y="6" width="12" height="12" rx="2"/>
         </svg>
       `;
@@ -1495,7 +1702,7 @@
         btnSend.classList.remove("stop");
         btnSend.title = "\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C (Enter)";
         btnSend.innerHTML = `
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
           <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
         </svg>
       `;
@@ -1506,7 +1713,7 @@
       if (!text) return;
       if (!config.apiKey && config.provider !== "custom") {
         openSettingsModal();
-        alert("\u041F\u043E\u0436\u0430\u043B\u0443\u0439\u0441\u0442\u0430, \u0432\u0432\u0435\u0434\u0438\u0442\u0435 API-\u043A\u043B\u044E\u0447 \u0434\u043B\u044F \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u043E\u0439 \u043D\u0435\u0439\u0440\u043E\u0441\u0435\u0442\u0438 \u0432 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u0445!");
+        alert("\u041F\u043E\u0436\u0430\u043B\u0443\u0439\u0441\u0442\u0430, \u0443\u043A\u0430\u0436\u0438\u0442\u0435 API-\u043A\u043B\u044E\u0447 \u0434\u043B\u044F \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u043E\u0439 \u043D\u0435\u0439\u0440\u043E\u0441\u0435\u0442\u0438 \u0432 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u0445!");
         return;
       }
       welcomeEl.style.display = "none";
@@ -1547,7 +1754,7 @@
         },
         onError: (err) => {
           contentEl.classList.remove("shifty-typing");
-          contentEl.innerHTML = `<span style="color:#f87171;">\u26A0\uFE0F ${err.message || "\u041E\u0448\u0438\u0431\u043A\u0430 \u0437\u0430\u043F\u0440\u043E\u0441\u0430 \u043A \u043D\u0435\u0439\u0440\u043E\u0441\u0435\u0442\u0438"}</span>`;
+          contentEl.innerHTML = `<span style="color:#ef4444;">\u26A0\uFE0F ${err.message || "\u041E\u0448\u0438\u0431\u043A\u0430 \u0437\u0430\u043F\u0440\u043E\u0441\u0430 \u043A \u043D\u0435\u0439\u0440\u043E\u0441\u0435\u0442\u0438"}</span>`;
           currentAbortController = null;
           setSendButtonState(false);
         }
@@ -1584,11 +1791,11 @@
       containerEl.style.display = "block";
       containerEl.innerHTML = `
       <div class="shifty-links-header">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5">
           <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
           <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
         </svg>
-        <span>\u041D\u0430\u0439\u0434\u0435\u043D\u043D\u044B\u0435 \u0438\u0441\u0442\u043E\u0447\u043D\u0438\u043A\u0438 \u0438 \u0441\u0441\u044B\u043B\u043A\u0438 (${links.length})</span>
+        <span>\u0418\u0441\u0442\u043E\u0447\u043D\u0438\u043A\u0438 \u0438 \u0441\u0441\u044B\u043B\u043A\u0438 (${links.length})</span>
       </div>
       <div class="shifty-links-list">
         ${links.map((l) => `
@@ -1605,7 +1812,7 @@
         btn.addEventListener("click", () => {
           const rawCode = decodeURIComponent(btn.getAttribute("data-code") || "");
           navigator.clipboard.writeText(rawCode).then(() => {
-            btn.textContent = "\u0421\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u043E!";
+            btn.textContent = "\u0421\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u043E";
             setTimeout(() => {
               btn.textContent = "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C";
             }, 2e3);
@@ -1625,6 +1832,9 @@
       return (str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
     function openSettingsModal() {
+      selectTheme.value = config.theme;
+      customColorPicker.value = config.accentColor;
+      customColorHex.value = config.accentColor.toUpperCase();
       selectProvider.value = config.provider;
       inputApiKey.value = config.apiKey || "";
       inputModel.value = config.model || "";
@@ -1635,9 +1845,14 @@
       inputSmallH.value = config.smallHeight;
       inputLargeW.value = config.largeWidth;
       inputLargeH.value = config.largeHeight;
+      initSwatches();
       updateProviderFields();
       modalEl.classList.remove("hidden");
     }
+    selectTheme.addEventListener("change", () => {
+      config.theme = selectTheme.value;
+      applyThemeAndStyles();
+    });
     function updateProviderFields() {
       const provId = selectProvider.value;
       const prov = PROVIDERS[provId] || PROVIDERS.gemini;
@@ -1647,7 +1862,7 @@
       }
       inputApiKey.placeholder = prov.keyPlaceholder || "API-\u043A\u043B\u044E\u0447...";
       if (prov.keyHelpUrl) {
-        keyHelpEl.innerHTML = `<a href="${prov.keyHelpUrl}" target="_blank" style="color:#818cf8; text-decoration:underline;">\u041F\u043E\u043B\u0443\u0447\u0438\u0442\u044C API-\u043A\u043B\u044E\u0447 \u0434\u043B\u044F ${prov.name} \u2197</a>`;
+        keyHelpEl.innerHTML = `<a href="${prov.keyHelpUrl}" target="_blank" style="color:var(--shifty-accent); text-decoration:underline;">\u041F\u043E\u043B\u0443\u0447\u0438\u0442\u044C \u043A\u043B\u044E\u0447 \u0434\u043B\u044F ${prov.name} \u2197</a>`;
       } else {
         keyHelpEl.textContent = "";
       }
@@ -1695,17 +1910,21 @@
     setupRecorder(btnRecordToggle, inputKeyToggle, "hotkeyToggle");
     setupRecorder(btnRecordResize, inputKeyResize, "hotkeyResize");
     btnSaveSettings.addEventListener("click", () => {
+      config.theme = selectTheme.value;
+      config.accentColor = customColorPicker.value;
       config.provider = selectProvider.value;
       config.apiKey = inputApiKey.value.trim();
       config.model = inputModel.value.trim();
       config.baseUrl = inputBaseUrl.value.trim();
       config.hotkeyToggle = inputKeyToggle.value.trim() || "Alt+Shift+S";
       config.hotkeyResize = inputKeyResize.value.trim() || "Alt+Shift+Z";
-      config.smallWidth = parseInt(inputSmallW.value, 10) || 420;
+      config.smallWidth = parseInt(inputSmallW.value, 10) || 400;
       config.smallHeight = parseInt(inputSmallH.value, 10) || 480;
-      config.largeWidth = parseInt(inputLargeW.value, 10) || 760;
+      config.largeWidth = parseInt(inputLargeW.value, 10) || 740;
       config.largeHeight = parseInt(inputLargeH.value, 10) || 640;
       chrome.storage.local.set({
+        theme: config.theme,
+        accentColor: config.accentColor,
         provider: config.provider,
         apiKey: config.apiKey,
         model: config.model,
@@ -1717,7 +1936,7 @@
         largeWidth: config.largeWidth,
         largeHeight: config.largeHeight
       }, () => {
-        applyConfigToStyles();
+        applyThemeAndStyles();
         updateModelBadge();
         modalEl.classList.add("hidden");
       });

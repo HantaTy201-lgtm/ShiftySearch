@@ -11,32 +11,58 @@
     <!-- Header -->
     <header class="shifty-page-header">
       <div class="shifty-header-brand">
-        <div class="shifty-logo">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5">
+        <div class="shifty-logo" id="options-logo">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07l14.14-14.14"/>
           </svg>
         </div>
         <div>
           <h1>ShiftySearch</h1>
-          <p>Персональный AI-островок в вашем браузере (Chromium, Firefox, Safari)</p>
+          <p>Минималистичный AI-островок для браузера (Chromium, Firefox, Safari)</p>
         </div>
       </div>
       <a href="https://github.com/HantaTy201-lgtm/ShiftySearch" target="_blank" class="shifty-github-btn">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
           <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
         </svg>
-        GitHub Репозиторий
+        GitHub
       </a>
     </header>
 
     <!-- Main Grid -->
     <main class="shifty-grid">
+      <!-- Section: Minimalist Theme & Color Customizer -->
+      <section class="shifty-card">
+        <h2 class="shifty-card-title">
+          <span>🎨</span> Тема и пользовательские цвета
+        </h2>
+        <p class="shifty-card-desc">Выберите тему оформления (чистый белый или минималистичный черный) и задайте свой собственный акцентный цвет интерфейса.</p>
+
+        <div class="shifty-form-group">
+          <label for="theme-select">Основная тема</label>
+          <select id="theme-select" class="shifty-select">
+            <option value="dark">Тёмная (Минималистичный глубокий чёрный)</option>
+            <option value="light">Светлая (Чистый минималистичный белый)</option>
+          </select>
+        </div>
+
+        <div class="shifty-form-group">
+          <label>Цвет акцента</label>
+          <div class="shifty-color-swatches" id="options-color-swatches"></div>
+          <div class="shifty-input-group" style="margin-top: 8px; align-items: center;">
+            <input type="color" id="options-custom-color" class="shifty-color-picker" value="#2563eb">
+            <input type="text" id="options-custom-color-hex" class="shifty-input" value="#2563eb" style="width: 110px; text-transform: uppercase;">
+            <span class="shifty-hint">Любой HEX-цвет (кнопки, ссылки, бейджи)</span>
+          </div>
+        </div>
+      </section>
+
       <!-- Section: AI Provider & Credentials -->
       <section class="shifty-card">
         <h2 class="shifty-card-title">
           <span>🧠</span> Нейросеть и API-ключ
         </h2>
-        <p class="shifty-card-desc">Выберите провайдера нейросети и укажите API-ключ. Вы можете подключить любую модель: Google Gemini, OpenAI, Claude, OpenRouter, Groq, DeepSeek или локальную нейросеть через Ollama.</p>
+        <p class="shifty-card-desc">Подключите любую удобную нейросеть: Google Gemini, ChatGPT, Claude, OpenRouter, Groq, DeepSeek или локальную модель через Ollama.</p>
 
         <div class="shifty-form-group">
           <label for="provider-select">Провайдер AI</label>
@@ -80,18 +106,18 @@
       <!-- Section: Hotkeys & Shortcuts -->
       <section class="shifty-card">
         <h2 class="shifty-card-title">
-          <span>⌨️</span> Горячие клавиши (Сочетания клавиш)
+          <span>⌨️</span> Горячие клавиши
         </h2>
-        <p class="shifty-card-desc">Настройте удобные сочетания клавиш для быстрого вызова островка и мгновенного изменения его масштаба прямо во время серфинга.</p>
+        <p class="shifty-card-desc">Настройте сочетания клавиш для открытия островка и переключения масштаба.</p>
 
         <div class="shifty-hotkey-row">
           <div>
             <strong>Открыть / Скрыть островок (In-page)</strong>
-            <p>Работает на любых сайтах</p>
+            <p>Работает поверх любых страниц</p>
           </div>
           <div class="shifty-hotkey-control">
             <input type="text" id="hotkey-toggle-input" class="shifty-input shifty-kbd-input" readonly value="Alt+Shift+S">
-            <button type="button" id="btn-record-toggle" class="shifty-btn-secondary">Записать</button>
+            <button type="button" id="btn-record-toggle" class="shifty-btn-secondary">Запись</button>
           </div>
         </div>
 
@@ -102,33 +128,29 @@
           </div>
           <div class="shifty-hotkey-control">
             <input type="text" id="hotkey-resize-input" class="shifty-input shifty-kbd-input" readonly value="Alt+Shift+Z">
-            <button type="button" id="btn-record-resize" class="shifty-btn-secondary">Записать</button>
+            <button type="button" id="btn-record-resize" class="shifty-btn-secondary">Запись</button>
           </div>
-        </div>
-
-        <div class="shifty-info-box">
-          <p><strong>💡 Глобальный браузерный хоткей:</strong> Вы также можете изменить системный шорткат браузера в разделе <code>chrome://extensions/shortcuts</code> (для Chrome/Chromium) или в меню управления расширениями (Firefox / Safari).</p>
         </div>
       </section>
 
-      <!-- Section: Island Dimensions & Sizing -->
+      <!-- Section: Dimensions & Behavior -->
       <section class="shifty-card">
         <h2 class="shifty-card-title">
-          <span>📐</span> Размеры и масштабирование островка
+          <span>📐</span> Размеры островка
         </h2>
-        <p class="shifty-card-desc">Задайте точные размеры в пикселях для компактного (мини) и полноразмерного режимов. Также вы можете изменять размер прямо мышью за правый нижний угол островка.</p>
+        <p class="shifty-card-desc">Настройте размеры (в пикселях) для компактного и развернутого режимов.</p>
 
         <div class="shifty-sizes-grid">
           <div class="shifty-size-box">
-            <h3>Мини-режим (Компактный)</h3>
+            <h3>Мини-режим</h3>
             <div class="shifty-dim-inputs">
-              <label>Ширина: <input type="number" id="dim-small-w" class="shifty-input" min="320" max="800"> px</label>
-              <label>Высота: <input type="number" id="dim-small-h" class="shifty-input" min="240" max="900"> px</label>
+              <label>Ширина: <input type="number" id="dim-small-w" class="shifty-input" min="300" max="800"> px</label>
+              <label>Высота: <input type="number" id="dim-small-h" class="shifty-input" min="200" max="900"> px</label>
             </div>
           </div>
 
           <div class="shifty-size-box">
-            <h3>Большой режим (Развернутый)</h3>
+            <h3>Большой режим</h3>
             <div class="shifty-dim-inputs">
               <label>Ширина: <input type="number" id="dim-large-w" class="shifty-input" min="400" max="1600"> px</label>
               <label>Высота: <input type="number" id="dim-large-h" class="shifty-input" min="300" max="1400"> px</label>
@@ -136,25 +158,25 @@
           </div>
         </div>
 
-        <div class="shifty-form-group" style="margin-top: 16px;">
+        <div class="shifty-form-group" style="margin-top: 14px;">
           <label class="shifty-checkbox-label">
             <input type="checkbox" id="check-auto-send">
-            <span>Автоматически отправлять запрос нейросети при клике ПКМ на выделенный текст («Спросить у ShiftySearch»)</span>
+            <span>Автоматически отправлять запрос при клике ПКМ по выделенному тексту</span>
           </label>
         </div>
       </section>
 
-      <!-- Section: System Prompt & Links -->
+      <!-- Section: System Prompt -->
       <section class="shifty-card">
         <h2 class="shifty-card-title">
-          <span>🔗</span> Системный промпт и поиск источников
+          <span>🔗</span> Системный промпт (Ссылки и источники)
         </h2>
-        <p class="shifty-card-desc">Промпт задает стиль ответа и обязывает нейросеть приводить проверенные ссылки и источники в конце каждого сообщения.</p>
+        <p class="shifty-card-desc">Промпт обязывает модель давать полезные ссылки и источники в конце каждого ответа.</p>
 
         <div class="shifty-form-group">
-          <textarea id="system-prompt-input" class="shifty-textarea" rows="6"></textarea>
+          <textarea id="system-prompt-input" class="shifty-textarea" rows="5"></textarea>
           <div style="display:flex; justify-content: flex-end; margin-top: 6px;">
-            <button type="button" id="btn-reset-prompt" class="shifty-btn-secondary">Восстановить стандартный промпт</button>
+            <button type="button" id="btn-reset-prompt" class="shifty-btn-secondary">Сбросить на стандартный</button>
           </div>
         </div>
       </section>
@@ -163,7 +185,7 @@
     <!-- Save Footer -->
     <footer class="shifty-page-footer">
       <div id="save-status-msg" class="shifty-save-msg"></div>
-      <button type="button" id="btn-save-all" class="shifty-btn-primary">Сохранить все настройки</button>
+      <button type="button" id="btn-save-all" class="shifty-btn-primary">Сохранить настройки</button>
     </footer>
   </div>
 

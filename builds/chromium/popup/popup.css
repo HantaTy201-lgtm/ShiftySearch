@@ -1,4 +1,4 @@
-/* src/popup/popup.css */
+/* src/popup/popup.css - Minimalist style */
 
 * {
   box-sizing: border-box;
@@ -7,19 +7,24 @@
 }
 
 body {
-  width: 290px;
-  background: #0f172a;
-  color: #f1f5f9;
+  width: 270px;
+  background: #121214;
+  color: #f4f4f5;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 13px;
-  padding: 14px;
+  font-size: 12.5px;
+  padding: 12px;
   user-select: none;
+}
+
+body.theme-light {
+  background: #ffffff;
+  color: #18181b;
 }
 
 .popup-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .popup-header {
@@ -30,17 +35,21 @@ body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+body.theme-light .popup-header {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
 .popup-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
 }
 
 .popup-logo {
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--popup-accent, #2563eb);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -48,19 +57,17 @@ body {
 }
 
 .popup-title {
-  font-size: 14px;
-  font-weight: 700;
-  background: linear-gradient(120deg, #f8fafc, #cbd5e1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: inherit;
 }
 
 .popup-icon-btn {
   background: transparent;
   border: none;
-  color: #94a3b8;
-  width: 28px;
-  height: 28px;
+  color: #a1a1aa;
+  width: 26px;
+  height: 26px;
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -70,27 +77,31 @@ body {
 }
 
 .popup-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f4f4f5;
 }
 
 /* Status Card */
 .popup-status-card {
-  background: rgba(30, 41, 59, 0.7);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  padding: 10px 12px;
+  border-radius: 8px;
+  padding: 8px 10px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+}
+
+body.theme-light .popup-status-card {
+  background: #f4f4f5;
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 .status-indicator {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #10b981;
-  box-shadow: 0 0 8px #10b981;
   flex-shrink: 0;
 }
 
@@ -101,13 +112,16 @@ body {
 }
 
 .status-label {
-  font-size: 11px;
-  color: #94a3b8;
+  font-size: 10.5px;
+  color: #a1a1aa;
+}
+
+body.theme-light .status-label {
+  color: #71717a;
 }
 
 .status-info strong {
-  font-size: 12.5px;
-  color: #f8fafc;
+  font-size: 12px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -117,52 +131,60 @@ body {
 .popup-actions {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .action-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 9px 12px;
-  border-radius: 10px;
-  font-size: 12.5px;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   border: none;
-  transition: all 0.15s ease;
+  transition: opacity 0.15s ease;
 }
 
 .action-btn.primary {
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: var(--popup-accent, #2563eb);
   color: white;
 }
 .action-btn.primary:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
+  opacity: 0.9;
 }
 
 .action-btn.secondary {
   background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: inherit;
 }
+body.theme-light .action-btn.secondary {
+  background: #f4f4f5;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
 .action-btn.secondary:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: white;
+  opacity: 0.8;
 }
 
 /* Shortcuts */
 .popup-shortcuts {
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
   padding: 8px 10px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   font-size: 11px;
-  color: #94a3b8;
+  color: #a1a1aa;
+}
+
+body.theme-light .popup-shortcuts {
+  background: #f4f4f5;
+  color: #71717a;
 }
 
 .shortcut-item {
@@ -172,10 +194,15 @@ body {
 }
 
 kbd {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 1px 5px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 4px;
   border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: inherit;
   font-family: inherit;
+  font-size: 10px;
+}
+body.theme-light kbd {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
 }

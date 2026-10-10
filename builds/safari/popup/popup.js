@@ -8,24 +8,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const kbdToggle = document.getElementById('kbd-toggle');
   const kbdResize = document.getElementById('kbd-resize');
 
-  // Load active state from storage
+  // Load state and apply theme
   chrome.storage.local.get({
     provider: 'gemini',
     model: 'gemini-2.0-flash',
     hotkeyToggle: 'Alt+Shift+S',
-    hotkeyResize: 'Alt+Shift+Z'
+    hotkeyResize: 'Alt+Shift+Z',
+    theme: 'dark',
+    accentColor: '#2563eb'
   }, (data) => {
     activeModelName.textContent = `${data.provider.toUpperCase()} (${data.model})`;
     kbdToggle.textContent = data.hotkeyToggle;
     kbdResize.textContent = data.hotkeyResize;
+
+    // Apply theme
+    if (data.theme === 'light') {
+      document.body.classList.add('theme-light');
+    }
+    document.documentElement.style.setProperty('--popup-accent', data.accentColor || '#2563eb');
   });
 
-  // Helper to send message to active tab
   function sendToActiveTab(action) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs && tabs[0] && tabs[0].id) {
         chrome.tabs.sendMessage(tabs[0].id, { action }).catch(() => {
-          alert('Не удалось открыть островок на этой странице (системные страницы браузера защищены). Откройте обычный сайт.');
+          alert('Не удалось открыть островок на этой системной вкладке. Перейдите на любой веб-сайт.');
         });
       }
     });

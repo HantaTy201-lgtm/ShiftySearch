@@ -298,7 +298,21 @@
   }
 
   // src/options/options.js
+  var PRESET_COLORS = [
+    { name: "\u041C\u043E\u043D\u043E\u0445\u0440\u043E\u043C", hex: "#18181b" },
+    { name: "\u0421\u0438\u043D\u0438\u0439", hex: "#2563eb" },
+    { name: "\u0418\u0437\u0443\u043C\u0440\u0443\u0434\u043D\u044B\u0439", hex: "#10b981" },
+    { name: "\u0424\u0438\u043E\u043B\u0435\u0442\u043E\u0432\u044B\u0439", hex: "#8b5cf6" },
+    { name: "\u041E\u0440\u0430\u043D\u0436\u0435\u0432\u044B\u0439", hex: "#f97316" },
+    { name: "\u0420\u043E\u0437\u043E\u0432\u044B\u0439", hex: "#ec4899" },
+    { name: "\u0413\u0440\u0430\u0444\u0438\u0442", hex: "#475569" }
+  ];
   document.addEventListener("DOMContentLoaded", () => {
+    const themeSelect = document.getElementById("theme-select");
+    const swatchesContainer = document.getElementById("options-color-swatches");
+    const customColorInput = document.getElementById("options-custom-color");
+    const customColorHexInput = document.getElementById("options-custom-color-hex");
+    const optionsLogo = document.getElementById("options-logo");
     const providerSelect = document.getElementById("provider-select");
     const apiKeyInput = document.getElementById("api-key-input");
     const btnToggleKey = document.getElementById("btn-toggle-key-visibility");
@@ -323,6 +337,8 @@
     const btnSaveAll = document.getElementById("btn-save-all");
     const saveStatusMsg = document.getElementById("save-status-msg");
     const DEFAULTS = {
+      theme: "dark",
+      accentColor: "#2563eb",
       provider: "gemini",
       apiKey: "",
       model: "gemini-2.0-flash",
@@ -330,22 +346,72 @@
       systemPrompt: DEFAULT_SYSTEM_PROMPT,
       hotkeyToggle: "Alt+Shift+S",
       hotkeyResize: "Alt+Shift+Z",
-      smallWidth: 420,
+      smallWidth: 400,
       smallHeight: 480,
-      largeWidth: 760,
+      largeWidth: 740,
       largeHeight: 640,
       autoSendSelection: true
     };
+    let activeAccent = "#2563eb";
+    function getContrastColor(hex) {
+      if (!hex) return "#ffffff";
+      let c = hex.replace("#", "");
+      if (c.length === 3) c = c.split("").map((x) => x + x).join("");
+      const r = parseInt(c.substr(0, 2), 16) || 0;
+      const g = parseInt(c.substr(2, 2), 16) || 0;
+      const b = parseInt(c.substr(4, 2), 16) || 0;
+      const yiq = (r * 299 + g * 587 + b * 114) / 1e3;
+      return yiq >= 150 ? "#09090b" : "#ffffff";
+    }
+    function applyThemeLive(theme, accent) {
+      document.body.classList.remove("theme-light", "theme-dark");
+      document.body.classList.add(theme === "light" ? "theme-light" : "theme-dark");
+      activeAccent = accent;
+      document.documentElement.style.setProperty("--accent-color", accent);
+      document.documentElement.style.setProperty("--accent-contrast", getContrastColor(accent));
+      if (customColorInput) customColorInput.value = accent;
+      if (customColorHexInput) customColorHexInput.value = accent.toUpperCase();
+      renderSwatches();
+    }
+    function renderSwatches() {
+      swatchesContainer.innerHTML = "";
+      PRESET_COLORS.forEach((c) => {
+        const el = document.createElement("div");
+        el.className = `shifty-swatch ${activeAccent.toLowerCase() === c.hex.toLowerCase() ? "active" : ""}`;
+        el.style.backgroundColor = c.hex;
+        el.title = c.name;
+        el.addEventListener("click", () => {
+          applyThemeLive(themeSelect.value, c.hex);
+        });
+        swatchesContainer.appendChild(el);
+      });
+    }
+    themeSelect.addEventListener("change", () => {
+      applyThemeLive(themeSelect.value, activeAccent);
+    });
+    customColorInput.addEventListener("input", (e) => {
+      applyThemeLive(themeSelect.value, e.target.value);
+    });
+    customColorHexInput.addEventListener("change", (e) => {
+      let val = e.target.value.trim();
+      if (!val.startsWith("#")) val = "#" + val;
+      if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+        applyThemeLive(themeSelect.value, val);
+      }
+    });
     chrome.storage.local.get(DEFAULTS, (data) => {
+      themeSelect.value = data.theme || "dark";
+      activeAccent = data.accentColor || "#2563eb";
+      applyThemeLive(themeSelect.value, activeAccent);
       providerSelect.value = data.provider || "gemini";
       apiKeyInput.value = data.apiKey || "";
       modelInput.value = data.model || "gemini-2.0-flash";
       baseUrlInput.value = data.baseUrl || "";
       hotkeyToggleInput.value = data.hotkeyToggle || "Alt+Shift+S";
       hotkeyResizeInput.value = data.hotkeyResize || "Alt+Shift+Z";
-      dimSmallW.value = data.smallWidth || 420;
+      dimSmallW.value = data.smallWidth || 400;
       dimSmallH.value = data.smallHeight || 480;
-      dimLargeW.value = data.largeWidth || 760;
+      dimLargeW.value = data.largeWidth || 740;
       dimLargeH.value = data.largeHeight || 640;
       checkAutoSend.checked = data.autoSendSelection !== false;
       systemPromptInput.value = data.systemPrompt || DEFAULT_SYSTEM_PROMPT;
@@ -362,7 +428,7 @@
       }
       apiKeyInput.placeholder = prov.keyPlaceholder;
       if (prov.keyHelpUrl) {
-        keyHelpLink.innerHTML = `<a href="${prov.keyHelpUrl}" target="_blank" style="color:#818cf8; text-decoration:underline;">\u041F\u043E\u043B\u0443\u0447\u0438\u0442\u044C \u043A\u043B\u044E\u0447 \u0434\u043B\u044F ${prov.name} \u2197</a>`;
+        keyHelpLink.innerHTML = `<a href="${prov.keyHelpUrl}" target="_blank" style="color:var(--accent-color); text-decoration:underline;">\u041F\u043E\u043B\u0443\u0447\u0438\u0442\u044C \u043A\u043B\u044E\u0447 \u0434\u043B\u044F ${prov.name} \u2197</a>`;
       } else {
         keyHelpLink.innerHTML = "";
       }
@@ -397,7 +463,7 @@
         testKeyResult.innerHTML = '<span style="color:#ef4444;">\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u043A\u043B\u044E\u0447!</span>';
         return;
       }
-      testKeyResult.innerHTML = '<span style="color:#94a3b8;">\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430...</span>';
+      testKeyResult.innerHTML = '<span style="color:var(--text-muted);">\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430...</span>';
       try {
         await sendAiRequest({
           provider,
@@ -407,7 +473,7 @@
           systemPrompt: 'Respond with "OK"',
           messages: [{ role: "user", content: "Ping" }],
           onDone: () => {
-            testKeyResult.innerHTML = '<span style="color:#10b981;">\u2705 \u041A\u043B\u044E\u0447 \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442 \u043E\u0442\u043B\u0438\u0447\u043D\u043E!</span>';
+            testKeyResult.innerHTML = '<span style="color:#10b981;">\u2705 \u041A\u043B\u044E\u0447 \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442!</span>';
           },
           onError: (err) => {
             testKeyResult.innerHTML = `<span style="color:#ef4444;">\u274C \u041E\u0448\u0438\u0431\u043A\u0430: ${err.message}</span>`;
@@ -452,25 +518,27 @@
     });
     btnSaveAll.addEventListener("click", () => {
       const newConfig = {
+        theme: themeSelect.value,
+        accentColor: activeAccent,
         provider: providerSelect.value,
         apiKey: apiKeyInput.value.trim(),
         model: modelInput.value.trim(),
         baseUrl: baseUrlInput.value.trim(),
         hotkeyToggle: hotkeyToggleInput.value.trim() || "Alt+Shift+S",
         hotkeyResize: hotkeyResizeInput.value.trim() || "Alt+Shift+Z",
-        smallWidth: parseInt(dimSmallW.value, 10) || 420,
+        smallWidth: parseInt(dimSmallW.value, 10) || 400,
         smallHeight: parseInt(dimSmallH.value, 10) || 480,
-        largeWidth: parseInt(dimLargeW.value, 10) || 760,
+        largeWidth: parseInt(dimLargeW.value, 10) || 740,
         largeHeight: parseInt(dimLargeH.value, 10) || 640,
         autoSendSelection: checkAutoSend.checked,
         systemPrompt: systemPromptInput.value.trim() || DEFAULT_SYSTEM_PROMPT
       };
       chrome.storage.local.set(newConfig, () => {
         saveStatusMsg.className = "shifty-save-msg success";
-        saveStatusMsg.textContent = "\u2728 \u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0443\u0441\u043F\u0435\u0448\u043D\u043E \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u044B!";
+        saveStatusMsg.textContent = "\u2728 \u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u044B!";
         setTimeout(() => {
           saveStatusMsg.textContent = "";
-        }, 3500);
+        }, 3e3);
       });
     });
   });

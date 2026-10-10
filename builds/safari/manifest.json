@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "ShiftySearch — Умный AI Островок",
-  "version": "1.0.0",
-  "description": "Плавающий AI-островок с поддержкой любой нейросети (Gemini, ChatGPT, Claude, OpenRouter), поиском источников и ссылок, масштабированием и горячими клавишами.",
+  "version": "1.1.0",
+  "description": "Минималистичный плавающий AI-островок с поддержкой любой нейросети (Gemini, ChatGPT, Claude, OpenRouter), выбором темы и цвета, поиском ссылок и масштабированием.",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",

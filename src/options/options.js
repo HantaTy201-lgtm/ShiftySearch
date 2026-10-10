@@ -1,7 +1,23 @@
 // src/options/options.js
 import { PROVIDERS, DEFAULT_SYSTEM_PROMPT, sendAiRequest } from '../api/ai-client.js';
 
+const PRESET_COLORS = [
+  { name: 'Монохром', hex: '#18181b' },
+  { name: 'Синий', hex: '#2563eb' },
+  { name: 'Изумрудный', hex: '#10b981' },
+  { name: 'Фиолетовый', hex: '#8b5cf6' },
+  { name: 'Оранжевый', hex: '#f97316' },
+  { name: 'Розовый', hex: '#ec4899' },
+  { name: 'Графит', hex: '#475569' }
+];
+
 document.addEventListener('DOMContentLoaded', () => {
+  const themeSelect = document.getElementById('theme-select');
+  const swatchesContainer = document.getElementById('options-color-swatches');
+  const customColorInput = document.getElementById('options-custom-color');
+  const customColorHexInput = document.getElementById('options-custom-color-hex');
+  const optionsLogo = document.getElementById('options-logo');
+
   const providerSelect = document.getElementById('provider-select');
   const apiKeyInput = document.getElementById('api-key-input');
   const btnToggleKey = document.getElementById('btn-toggle-key-visibility');
@@ -27,6 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const saveStatusMsg = document.getElementById('save-status-msg');
 
   const DEFAULTS = {
+    theme: 'dark',
+    accentColor: '#2563eb',
     provider: 'gemini',
     apiKey: '',
     model: 'gemini-2.0-flash',
@@ -34,24 +52,85 @@ document.addEventListener('DOMContentLoaded', () => {
     systemPrompt: DEFAULT_SYSTEM_PROMPT,
     hotkeyToggle: 'Alt+Shift+S',
     hotkeyResize: 'Alt+Shift+Z',
-    smallWidth: 420,
+    smallWidth: 400,
     smallHeight: 480,
-    largeWidth: 760,
+    largeWidth: 740,
     largeHeight: 640,
     autoSendSelection: true
   };
 
+  let activeAccent = '#2563eb';
+
+  function getContrastColor(hex) {
+    if (!hex) return '#ffffff';
+    let c = hex.replace('#', '');
+    if (c.length === 3) c = c.split('').map(x => x + x).join('');
+    const r = parseInt(c.substr(0, 2), 16) || 0;
+    const g = parseInt(c.substr(2, 2), 16) || 0;
+    const b = parseInt(c.substr(4, 2), 16) || 0;
+    const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+    return yiq >= 150 ? '#09090b' : '#ffffff';
+  }
+
+  function applyThemeLive(theme, accent) {
+    document.body.classList.remove('theme-light', 'theme-dark');
+    document.body.classList.add(theme === 'light' ? 'theme-light' : 'theme-dark');
+
+    activeAccent = accent;
+    document.documentElement.style.setProperty('--accent-color', accent);
+    document.documentElement.style.setProperty('--accent-contrast', getContrastColor(accent));
+
+    if (customColorInput) customColorInput.value = accent;
+    if (customColorHexInput) customColorHexInput.value = accent.toUpperCase();
+
+    renderSwatches();
+  }
+
+  function renderSwatches() {
+    swatchesContainer.innerHTML = '';
+    PRESET_COLORS.forEach(c => {
+      const el = document.createElement('div');
+      el.className = `shifty-swatch ${activeAccent.toLowerCase() === c.hex.toLowerCase() ? 'active' : ''}`;
+      el.style.backgroundColor = c.hex;
+      el.title = c.name;
+      el.addEventListener('click', () => {
+        applyThemeLive(themeSelect.value, c.hex);
+      });
+      swatchesContainer.appendChild(el);
+    });
+  }
+
+  themeSelect.addEventListener('change', () => {
+    applyThemeLive(themeSelect.value, activeAccent);
+  });
+
+  customColorInput.addEventListener('input', (e) => {
+    applyThemeLive(themeSelect.value, e.target.value);
+  });
+
+  customColorHexInput.addEventListener('change', (e) => {
+    let val = e.target.value.trim();
+    if (!val.startsWith('#')) val = '#' + val;
+    if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+      applyThemeLive(themeSelect.value, val);
+    }
+  });
+
   // 1. Load saved preferences
   chrome.storage.local.get(DEFAULTS, (data) => {
+    themeSelect.value = data.theme || 'dark';
+    activeAccent = data.accentColor || '#2563eb';
+    applyThemeLive(themeSelect.value, activeAccent);
+
     providerSelect.value = data.provider || 'gemini';
     apiKeyInput.value = data.apiKey || '';
     modelInput.value = data.model || 'gemini-2.0-flash';
     baseUrlInput.value = data.baseUrl || '';
     hotkeyToggleInput.value = data.hotkeyToggle || 'Alt+Shift+S';
     hotkeyResizeInput.value = data.hotkeyResize || 'Alt+Shift+Z';
-    dimSmallW.value = data.smallWidth || 420;
+    dimSmallW.value = data.smallWidth || 400;
     dimSmallH.value = data.smallHeight || 480;
-    dimLargeW.value = data.largeWidth || 760;
+    dimLargeW.value = data.largeWidth || 740;
     dimLargeH.value = data.largeHeight || 640;
     checkAutoSend.checked = data.autoSendSelection !== false;
     systemPromptInput.value = data.systemPrompt || DEFAULT_SYSTEM_PROMPT;
@@ -64,7 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const provId = providerSelect.value;
     const prov = PROVIDERS[provId] || PROVIDERS.gemini;
 
-    // Show/hide custom endpoint
     if (provId === 'custom') {
       endpointGroup.style.display = 'flex';
       if (!baseUrlInput.value) baseUrlInput.value = prov.defaultUrl;
@@ -72,15 +150,13 @@ document.addEventListener('DOMContentLoaded', () => {
       endpointGroup.style.display = 'none';
     }
 
-    // Update API Key placeholder & Help Link
     apiKeyInput.placeholder = prov.keyPlaceholder;
     if (prov.keyHelpUrl) {
-      keyHelpLink.innerHTML = `<a href="${prov.keyHelpUrl}" target="_blank" style="color:#818cf8; text-decoration:underline;">Получить ключ для ${prov.name} ↗</a>`;
+      keyHelpLink.innerHTML = `<a href="${prov.keyHelpUrl}" target="_blank" style="color:var(--accent-color); text-decoration:underline;">Получить ключ для ${prov.name} ↗</a>`;
     } else {
       keyHelpLink.innerHTML = '';
     }
 
-    // Model Presets
     modelPresetsContainer.innerHTML = '';
     prov.models.forEach(m => {
       const chip = document.createElement('span');
@@ -119,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    testKeyResult.innerHTML = '<span style="color:#94a3b8;">Проверка...</span>';
+    testKeyResult.innerHTML = '<span style="color:var(--text-muted);">Проверка...</span>';
 
     try {
       await sendAiRequest({
@@ -130,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         systemPrompt: 'Respond with "OK"',
         messages: [{ role: 'user', content: 'Ping' }],
         onDone: () => {
-          testKeyResult.innerHTML = '<span style="color:#10b981;">✅ Ключ работает отлично!</span>';
+          testKeyResult.innerHTML = '<span style="color:#10b981;">✅ Ключ работает!</span>';
         },
         onError: (err) => {
           testKeyResult.innerHTML = `<span style="color:#ef4444;">❌ Ошибка: ${err.message}</span>`;
@@ -188,15 +264,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // 7. Save All Options
   btnSaveAll.addEventListener('click', () => {
     const newConfig = {
+      theme: themeSelect.value,
+      accentColor: activeAccent,
       provider: providerSelect.value,
       apiKey: apiKeyInput.value.trim(),
       model: modelInput.value.trim(),
       baseUrl: baseUrlInput.value.trim(),
       hotkeyToggle: hotkeyToggleInput.value.trim() || 'Alt+Shift+S',
       hotkeyResize: hotkeyResizeInput.value.trim() || 'Alt+Shift+Z',
-      smallWidth: parseInt(dimSmallW.value, 10) || 420,
+      smallWidth: parseInt(dimSmallW.value, 10) || 400,
       smallHeight: parseInt(dimSmallH.value, 10) || 480,
-      largeWidth: parseInt(dimLargeW.value, 10) || 760,
+      largeWidth: parseInt(dimLargeW.value, 10) || 740,
       largeHeight: parseInt(dimLargeH.value, 10) || 640,
       autoSendSelection: checkAutoSend.checked,
       systemPrompt: systemPromptInput.value.trim() || DEFAULT_SYSTEM_PROMPT
@@ -204,10 +282,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     chrome.storage.local.set(newConfig, () => {
       saveStatusMsg.className = 'shifty-save-msg success';
-      saveStatusMsg.textContent = '✨ Настройки успешно сохранены!';
+      saveStatusMsg.textContent = '✨ Настройки сохранены!';
       setTimeout(() => {
         saveStatusMsg.textContent = '';
-      }, 3500);
+      }, 3000);
     });
   });
 });
