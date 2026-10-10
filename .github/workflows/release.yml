@@ -1,0 +1,75 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extensions
+        run: npm run build
+
+      - name: Publish Release to GitHub
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: ShiftySearch ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          files: |
+            dist/shiftysearch-chromium.zip
+            dist/shiftysearch-firefox.zip
+            dist/shiftysearch-safari.zip
+          body: |
+            ## 🏝️ ShiftySearch Release ${{ github.ref_name }}
+
+            Плавающий AI-островок для браузеров Chromium, Firefox и Safari с поддержкой любых нейросетей (Gemini, ChatGPT, Claude, OpenRouter, Groq, DeepSeek, Ollama), поиском источников и ссылок, свободным перемещением и горячими клавишами изменения масштаба.
+
+            ### 📦 Скачать готовые расширения (ZIP):
+            - 🌐 **[shiftysearch-chromium.zip](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/shiftysearch-chromium.zip)** — для Google Chrome, Brave, Microsoft Edge, Opera, Яндекс Браузера.
+            - 🦊 **[shiftysearch-firefox.zip](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/shiftysearch-firefox.zip)** — для Mozilla Firefox.
+            - 🧭 **[shiftysearch-safari.zip](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/shiftysearch-safari.zip)** — для Apple Safari (macOS).
+
+            ---
+
+            ### 🚀 Инструкция по быстрой установке:
+
+            #### Chromium (Chrome / Brave / Edge / Opera)
+            1. Скачайте **`shiftysearch-chromium.zip`** и распакуйте его в любую удобную папку.
+            2. Перейдите по адресу `chrome://extensions/` (или `brave://extensions/`, `edge://extensions/`).
+            3. Включите **«Режим разработчика»** (Developer mode) в правом верхнем углу.
+            4. Нажмите **«Загрузить распакованное расширение»** (Load unpacked) и выберите распакованную папку.
+
+            #### Firefox
+            1. Скачайте **`shiftysearch-firefox.zip`**.
+            2. Откройте `about:debugging#/runtime/this-firefox`.
+            3. Нажмите **«Загрузить временное дополнение...»** (Load Temporary Add-on) и выберите скачанный zip-архив (или `manifest.json` внутри него).
+
+            #### Safari (macOS)
+            1. Скачайте **`shiftysearch-safari.zip`** и распакуйте.
+            2. В терминале выполните:
+               ```bash
+               xcrun safari-web-extension-converter path/to/unpacked --project-location ./safari-build --app-name ShiftySearch
+               ```
+            3. Запустите проект в Xcode (Cmd + R) и активируйте в настройках Safari -> Расширения.
