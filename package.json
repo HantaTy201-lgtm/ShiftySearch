@@ -1,0 +1,27 @@
+{
+  "name": "shifty-search",
+  "version": "1.0.0",
+  "description": "ShiftySearch - Cross-browser AI floating island extension for Chromium, Firefox, and Safari",
+  "main": "src/background/background.js",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "generate-icons": "node scripts/generate-icons.js"
+  },
+  "keywords": [
+    "browser-extension",
+    "ai",
+    "floating-island",
+    "chromium",
+    "firefox",
+    "safari",
+    "openai",
+    "gemini",
+    "claude",
+    "openrouter"
+  ],
+  "author": "HantaTy201-lgtm",
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

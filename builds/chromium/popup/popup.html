@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShiftySearch</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <div class="popup-header">
+      <div class="popup-brand">
+        <div class="popup-logo">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07l14.14-14.14"/>
+          </svg>
+        </div>
+        <span class="popup-title">ShiftySearch</span>
+      </div>
+      <button class="popup-icon-btn" id="btn-open-options" title="Настройки">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Active Model Status -->
+    <div class="popup-status-card">
+      <div class="status-indicator"></div>
+      <div class="status-info">
+        <span class="status-label">Активная нейросеть:</span>
+        <strong id="active-model-name">Gemini 2.0 Flash</strong>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="popup-actions">
+      <button class="action-btn primary" id="btn-toggle-island">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+        </svg>
+        Открыть островок на странице
+      </button>
+
+      <button class="action-btn secondary" id="btn-toggle-size">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+        </svg>
+        Сменить масштаб (Мини / Большой)
+      </button>
+    </div>
+
+    <!-- Shortcuts Info -->
+    <div class="popup-shortcuts">
+      <div class="shortcut-item">
+        <span>Открыть островок:</span>
+        <kbd id="kbd-toggle">Alt+Shift+S</kbd>
+      </div>
+      <div class="shortcut-item">
+        <span>Сменить масштаб:</span>
+        <kbd id="kbd-resize">Alt+Shift+Z</kbd>
+      </div>
+      <div class="shortcut-item">
+        <span>Спросить о тексте:</span>
+        <span>ПКМ → Выделить</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
