@@ -184,7 +184,7 @@ async function callGeminiNativeStream({
   activeModel = activeModel.replace(/^models\//, '');
 
   let endpoint = '';
-  if (baseUrl && baseUrl.trim().length > 0) {
+  if (baseUrl && baseUrl.trim().length > 0 && !baseUrl.includes('openai/chat/completions')) {
     endpoint = baseUrl.trim();
     if (!endpoint.includes('key=')) {
       endpoint += (endpoint.includes('?') ? '&' : '?') + `key=${encodeURIComponent(cleanKey)}&alt=sse`;
@@ -214,6 +214,7 @@ async function callGeminiNativeStream({
 
   const response = await fetch(endpoint, {
     method: 'POST',
+    credentials: 'omit',
     headers: {
       'Content-Type': 'application/json',
       'x-goog-api-key': cleanKey
@@ -237,6 +238,9 @@ async function callGeminiNativeStream({
       errorDetail = await response.text();
     }
 
+    if (response.status === 401 || errorDetail.includes('invalid authentication credentials') || errorDetail.includes('UNAUTHENTICATED')) {
+      throw new Error('Ключ API не привязан к Generative Language API (Ошибка 401). При создании ключа в Google AI Studio (aistudio.google.com/app/apikey) обязательно нажмите кнопку «Create API key in new project» (Создать в новом проекте). Если выбрать существующий проект Google Cloud без включенного API, ключ работать не будет.');
+    }
     if (errorDetail.includes('API_KEY_INVALID') || errorDetail.includes('API key not valid')) {
       throw new Error('API-ключ Google Gemini недействителен. Убедитесь, что скопировали ключ полностью из Google AI Studio (aistudio.google.com/app/apikey).');
     }
@@ -321,6 +325,7 @@ async function callOpenAiCompatibleStream({
 
   const response = await fetch(endpoint, {
     method: 'POST',
+    credentials: 'omit',
     headers,
     signal,
     body: JSON.stringify({

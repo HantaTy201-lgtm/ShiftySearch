@@ -171,7 +171,7 @@
     let activeModel = model.trim() || "gemini-2.0-flash";
     activeModel = activeModel.replace(/^models\//, "");
     let endpoint = "";
-    if (baseUrl && baseUrl.trim().length > 0) {
+    if (baseUrl && baseUrl.trim().length > 0 && !baseUrl.includes("openai/chat/completions")) {
       endpoint = baseUrl.trim();
       if (!endpoint.includes("key=")) {
         endpoint += (endpoint.includes("?") ? "&" : "?") + `key=${encodeURIComponent(cleanKey)}&alt=sse`;
@@ -196,6 +196,7 @@
     }
     const response = await fetch(endpoint, {
       method: "POST",
+      credentials: "omit",
       headers: {
         "Content-Type": "application/json",
         "x-goog-api-key": cleanKey
@@ -216,6 +217,9 @@
         }
       } catch {
         errorDetail = await response.text();
+      }
+      if (response.status === 401 || errorDetail.includes("invalid authentication credentials") || errorDetail.includes("UNAUTHENTICATED")) {
+        throw new Error("\u041A\u043B\u044E\u0447 API \u043D\u0435 \u043F\u0440\u0438\u0432\u044F\u0437\u0430\u043D \u043A Generative Language API (\u041E\u0448\u0438\u0431\u043A\u0430 401). \u041F\u0440\u0438 \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u0438 \u043A\u043B\u044E\u0447\u0430 \u0432 Google AI Studio (aistudio.google.com/app/apikey) \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E \u043D\u0430\u0436\u043C\u0438\u0442\u0435 \u043A\u043D\u043E\u043F\u043A\u0443 \xABCreate API key in new project\xBB (\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0432 \u043D\u043E\u0432\u043E\u043C \u043F\u0440\u043E\u0435\u043A\u0442\u0435). \u0415\u0441\u043B\u0438 \u0432\u044B\u0431\u0440\u0430\u0442\u044C \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0439 \u043F\u0440\u043E\u0435\u043A\u0442 Google Cloud \u0431\u0435\u0437 \u0432\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u043E\u0433\u043E API, \u043A\u043B\u044E\u0447 \u0440\u0430\u0431\u043E\u0442\u0430\u0442\u044C \u043D\u0435 \u0431\u0443\u0434\u0435\u0442.");
       }
       if (errorDetail.includes("API_KEY_INVALID") || errorDetail.includes("API key not valid")) {
         throw new Error("API-\u043A\u043B\u044E\u0447 Google Gemini \u043D\u0435\u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0442\u0435\u043B\u0435\u043D. \u0423\u0431\u0435\u0434\u0438\u0442\u0435\u0441\u044C, \u0447\u0442\u043E \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043B\u0438 \u043A\u043B\u044E\u0447 \u043F\u043E\u043B\u043D\u043E\u0441\u0442\u044C\u044E \u0438\u0437 Google AI Studio (aistudio.google.com/app/apikey).");
@@ -285,6 +289,7 @@
     ];
     const response = await fetch(endpoint, {
       method: "POST",
+      credentials: "omit",
       headers,
       signal,
       body: JSON.stringify({
