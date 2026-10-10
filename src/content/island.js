@@ -24,7 +24,7 @@ import islandCss from './island.css';
   const DEFAULT_CONFIG = {
     provider: 'gemini',
     apiKey: '',
-    model: 'gemini-2.0-flash',
+    model: 'gemini-1.5-flash',
     baseUrl: '',
     systemPrompt: DEFAULT_SYSTEM_PROMPT,
     hotkeyToggle: 'Alt+Shift+S',

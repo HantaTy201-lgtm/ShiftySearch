@@ -6,8 +6,8 @@ export const PROVIDERS = {
   gemini: {
     id: 'gemini',
     name: 'Google Gemini',
-    defaultModel: 'gemini-2.0-flash',
-    models: ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'],
+    defaultModel: 'gemini-1.5-flash',
+    models: ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'],
     defaultUrl: '',
     keyPlaceholder: 'AIzaSy...',
     keyHelpUrl: 'https://aistudio.google.com/app/apikey'
@@ -48,7 +48,7 @@ export const PROVIDERS = {
   },
   groq: {
     id: 'groq',
-    name: 'Groq (Ultra-fast)',
+    name: 'Groq (Ultra-fast, без VPN)',
     defaultModel: 'llama-3.3-70b-versatile',
     models: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768'],
     defaultUrl: 'https://api.groq.com/openai/v1/chat/completions',
@@ -156,7 +156,11 @@ export async function sendAiRequest({
       onDone();
       return;
     }
-    onError(err);
+    let msg = err.message || 'Неизвестная ошибка';
+    if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+      msg = 'Не удалось подключиться к серверу нейросети (Failed to fetch). Если вы в РФ — для Google Gemini обязательно нужен включенный VPN, либо переключитесь на Groq в настройках (Groq работает без VPN).';
+    }
+    onError(new Error(msg));
   }
 }
 
