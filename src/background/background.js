@@ -1,8 +1,9 @@
 // src/background/background.js
 // Background Service Worker for ShiftySearch
 
+import { sendAiRequest } from '../api/ai-client.js';
+
 chrome.runtime.onInstalled.addListener(() => {
-  // Create Context Menu item for selected text
   chrome.contextMenus.create({
     id: 'shifty-search-selection',
     title: '🔍 Спросить у ShiftySearch (AI)',
@@ -19,7 +20,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       action: 'ask-selection',
       text: info.selectionText
     }).catch(err => {
-      // Content script may not be injected on restricted pages (e.g. chrome://)
       console.warn('Could not send message to active tab:', err);
     });
   }
@@ -44,5 +44,46 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'openOptions') {
     chrome.runtime.openOptionsPage();
     sendResponse({ status: 'ok' });
+  }
+});
+
+// Port-based stream bridge: Executes AI requests in background worker to bypass page CORS & CSP
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name === 'shifty-stream') {
+    const abortController = new AbortController();
+
+    port.onDisconnect.addListener(() => {
+      abortController.abort();
+    });
+
+    port.onMessage.addListener(async (msg) => {
+      if (msg.action === 'send') {
+        try {
+          await sendAiRequest({
+            ...msg.payload,
+            signal: abortController.signal,
+            onChunk: (chunk, accumulated) => {
+              try {
+                port.postMessage({ type: 'chunk', chunk, accumulated });
+              } catch (e) {}
+            },
+            onDone: (finalText) => {
+              try {
+                port.postMessage({ type: 'done', finalText });
+              } catch (e) {}
+            },
+            onError: (err) => {
+              try {
+                port.postMessage({ type: 'error', error: err.message || 'Ошибка запроса' });
+              } catch (e) {}
+            }
+          });
+        } catch (err) {
+          try {
+            port.postMessage({ type: 'error', error: err.message || 'Ошибка запроса' });
+          } catch (e) {}
+        }
+      }
+    });
   }
 });

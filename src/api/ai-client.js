@@ -1,8 +1,17 @@
 // src/api/ai-client.js
 // Universal AI Client for ShiftySearch
-// Supports OpenAI, Anthropic, Gemini, OpenRouter, Groq, DeepSeek, and Custom OpenAI-compatible endpoints.
+// Supports Google Gemini (Native API & AI Studio), OpenAI, Anthropic, OpenRouter, Groq, DeepSeek, and Custom endpoints.
 
 export const PROVIDERS = {
+  gemini: {
+    id: 'gemini',
+    name: 'Google Gemini',
+    defaultModel: 'gemini-2.0-flash',
+    models: ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'],
+    defaultUrl: '',
+    keyPlaceholder: 'AIzaSy...',
+    keyHelpUrl: 'https://aistudio.google.com/app/apikey'
+  },
   openai: {
     id: 'openai',
     name: 'OpenAI (ChatGPT)',
@@ -11,24 +20,6 @@ export const PROVIDERS = {
     defaultUrl: 'https://api.openai.com/v1/chat/completions',
     keyPlaceholder: 'sk-...',
     keyHelpUrl: 'https://platform.openai.com/api-keys'
-  },
-  gemini: {
-    id: 'gemini',
-    name: 'Google Gemini',
-    defaultModel: 'gemini-2.0-flash',
-    models: ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'],
-    defaultUrl: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
-    keyPlaceholder: 'AIzaSy...',
-    keyHelpUrl: 'https://aistudio.google.com/app/apikey'
-  },
-  anthropic: {
-    id: 'anthropic',
-    name: 'Anthropic Claude',
-    defaultModel: 'claude-3-5-haiku-20241022',
-    models: ['claude-3-5-haiku-20241022', 'claude-3-5-sonnet-20241022'],
-    defaultUrl: 'https://api.anthropic.com/v1/messages',
-    keyPlaceholder: 'sk-ant-...',
-    keyHelpUrl: 'https://console.anthropic.com/settings/keys'
   },
   openrouter: {
     id: 'openrouter',
@@ -45,6 +36,15 @@ export const PROVIDERS = {
     defaultUrl: 'https://openrouter.ai/api/v1/chat/completions',
     keyPlaceholder: 'sk-or-v1-...',
     keyHelpUrl: 'https://openrouter.ai/keys'
+  },
+  anthropic: {
+    id: 'anthropic',
+    name: 'Anthropic Claude',
+    defaultModel: 'claude-3-5-haiku-20241022',
+    models: ['claude-3-5-haiku-20241022', 'claude-3-5-sonnet-20241022'],
+    defaultUrl: 'https://api.anthropic.com/v1/messages',
+    keyPlaceholder: 'sk-ant-...',
+    keyHelpUrl: 'https://console.anthropic.com/settings/keys'
   },
   groq: {
     id: 'groq',
@@ -70,7 +70,7 @@ export const PROVIDERS = {
     defaultModel: 'llama3.2',
     models: ['llama3.2', 'mistral', 'qwen2.5'],
     defaultUrl: 'http://localhost:11434/v1/chat/completions',
-    keyPlaceholder: 'Optional key (or ollama)',
+    keyPlaceholder: 'Не требуется (или ollama)',
     keyHelpUrl: ''
   }
 };
@@ -90,7 +90,7 @@ export const DEFAULT_SYSTEM_PROMPT = `Ты — полезный, умный и �
  * Universal Stream caller for LLM API
  */
 export async function sendAiRequest({
-  provider = 'openai',
+  provider = 'gemini',
   apiKey = '',
   model = '',
   baseUrl = '',
@@ -101,21 +101,33 @@ export async function sendAiRequest({
   onError = () => {},
   signal = null
 }) {
-  const providerConfig = PROVIDERS[provider] || PROVIDERS.openai;
-  const endpoint = (baseUrl && baseUrl.trim().length > 0) ? baseUrl.trim() : providerConfig.defaultUrl;
+  const providerConfig = PROVIDERS[provider] || PROVIDERS.gemini;
+  const cleanKey = (apiKey || '').trim();
   const activeModel = (model && model.trim().length > 0) ? model.trim() : providerConfig.defaultModel;
 
-  if (!apiKey && provider !== 'custom') {
+  if (!cleanKey && provider !== 'custom') {
     const err = new Error(`Пожалуйста, укажите API-ключ для ${providerConfig.name} в настройках ShiftySearch.`);
     onError(err);
     return;
   }
 
   try {
-    if (provider === 'anthropic') {
+    if (provider === 'gemini') {
+      await callGeminiNativeStream({
+        apiKey: cleanKey,
+        model: activeModel,
+        baseUrl,
+        systemPrompt,
+        messages,
+        onChunk,
+        onDone,
+        onError,
+        signal
+      });
+    } else if (provider === 'anthropic') {
       await callAnthropicStream({
-        endpoint,
-        apiKey,
+        endpoint: (baseUrl && baseUrl.trim().length > 0) ? baseUrl.trim() : providerConfig.defaultUrl,
+        apiKey: cleanKey,
         model: activeModel,
         systemPrompt,
         messages,
@@ -125,10 +137,10 @@ export async function sendAiRequest({
         signal
       });
     } else {
-      // Standard OpenAI format (Works for OpenAI, Gemini OpenAI API, OpenRouter, Groq, DeepSeek, Ollama/Custom)
+      // Standard OpenAI format (OpenAI, OpenRouter, Groq, DeepSeek, Custom/Ollama)
       await callOpenAiCompatibleStream({
-        endpoint,
-        apiKey,
+        endpoint: (baseUrl && baseUrl.trim().length > 0) ? baseUrl.trim() : providerConfig.defaultUrl,
+        apiKey: cleanKey,
         model: activeModel,
         systemPrompt,
         messages,
@@ -146,6 +158,128 @@ export async function sendAiRequest({
     }
     onError(err);
   }
+}
+
+/**
+ * Native Google Gemini API Streaming (Google AI Studio Keys AIzaSy...)
+ */
+async function callGeminiNativeStream({
+  apiKey,
+  model,
+  baseUrl,
+  systemPrompt,
+  messages,
+  onChunk,
+  onDone,
+  onError,
+  signal
+}) {
+  const cleanKey = apiKey.trim();
+  let activeModel = model.trim() || 'gemini-2.0-flash';
+  // Remove any prefix if user typed 'models/gemini-...'
+  activeModel = activeModel.replace(/^models\//, '');
+
+  let endpoint = '';
+  if (baseUrl && baseUrl.trim().length > 0) {
+    endpoint = baseUrl.trim();
+    if (!endpoint.includes('key=')) {
+      endpoint += (endpoint.includes('?') ? '&' : '?') + `key=${encodeURIComponent(cleanKey)}&alt=sse`;
+    }
+  } else {
+    endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(activeModel)}:streamGenerateContent?key=${encodeURIComponent(cleanKey)}&alt=sse`;
+  }
+
+  // Convert messages for Gemini: role must be 'user' or 'model'
+  const contents = messages.map(m => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }]
+  }));
+
+  const payload = {
+    contents,
+    generationConfig: {
+      temperature: 0.7
+    }
+  };
+
+  if (systemPrompt && systemPrompt.trim()) {
+    payload.systemInstruction = {
+      parts: [{ text: systemPrompt }]
+    };
+  }
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': cleanKey
+    },
+    signal,
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    let errorDetail = '';
+    try {
+      const errJson = await response.json();
+      if (Array.isArray(errJson) && errJson[0]?.error?.message) {
+        errorDetail = errJson[0].error.message;
+      } else if (errJson.error?.message) {
+        errorDetail = errJson.error.message;
+      } else {
+        errorDetail = JSON.stringify(errJson);
+      }
+    } catch {
+      errorDetail = await response.text();
+    }
+
+    if (errorDetail.includes('API_KEY_INVALID') || errorDetail.includes('API key not valid')) {
+      throw new Error('API-ключ Google Gemini недействителен. Убедитесь, что скопировали ключ полностью из Google AI Studio (aistudio.google.com/app/apikey).');
+    }
+    if (errorDetail.includes('RESOURCE_EXHAUSTED')) {
+      throw new Error('Превышен лимит запросов Google Gemini. Подождите 1 минуту или выберите модель gemini-1.5-flash.');
+    }
+    if (errorDetail.includes('User location is not supported')) {
+      throw new Error('Google Gemini недоступен в вашем регионе без VPN (User location is not supported). Используйте VPN или выберите OpenRouter / Groq в настройках.');
+    }
+
+    throw new Error(`Ошибка Gemini API (${response.status}): ${errorDetail || response.statusText}`);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder('utf-8');
+  let buffer = '';
+  let fullText = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith(':')) continue;
+
+      if (trimmed.startsWith('data: ')) {
+        const jsonStr = trimmed.slice(6);
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const chunkText = parsed.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          if (chunkText) {
+            fullText += chunkText;
+            onChunk(chunkText, fullText);
+          }
+        } catch {
+          // Ignore partial JSON parse chunks
+        }
+      }
+    }
+  }
+
+  onDone(fullText);
 }
 
 /**
@@ -176,7 +310,6 @@ async function callOpenAiCompatibleStream({
     headers['X-Title'] = 'ShiftySearch Browser Extension';
   }
 
-  // Prepend system prompt
   const fullMessages = [
     { role: 'system', content: systemPrompt },
     ...messages
@@ -198,7 +331,13 @@ async function callOpenAiCompatibleStream({
     let errorDetail = '';
     try {
       const errJson = await response.json();
-      errorDetail = errJson.error?.message || errJson.message || JSON.stringify(errJson);
+      if (Array.isArray(errJson) && errJson[0]?.error?.message) {
+        errorDetail = errJson[0].error.message;
+      } else if (errJson.error?.message) {
+        errorDetail = errJson.error.message;
+      } else {
+        errorDetail = JSON.stringify(errJson);
+      }
     } catch {
       errorDetail = await response.text();
     }
@@ -206,7 +345,7 @@ async function callOpenAiCompatibleStream({
   }
 
   if (!response.body) {
-    throw new Error('Ответ сервера не содержит данных (Body is empty)');
+    throw new Error('Ответ сервера пуст');
   }
 
   const reader = response.body.getReader();
@@ -224,7 +363,7 @@ async function callOpenAiCompatibleStream({
 
     for (const line of lines) {
       const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith(':')) continue; // SSE comment or ping
+      if (!trimmed || trimmed.startsWith(':')) continue;
 
       if (trimmed === 'data: [DONE]') {
         onDone(fullText);
@@ -241,7 +380,7 @@ async function callOpenAiCompatibleStream({
             onChunk(delta, fullText);
           }
         } catch {
-          // Incomplete chunk or raw string, ignore parse errors
+          // Ignore partial JSON
         }
       }
     }
@@ -271,7 +410,6 @@ async function callAnthropicStream({
     'anthropic-dangerous-direct-browser-access': 'true'
   };
 
-  // Convert messages for Anthropic (alternating user/assistant)
   const anthropicMessages = messages.map(m => ({
     role: m.role === 'user' ? 'user' : 'assistant',
     content: m.content
@@ -330,7 +468,7 @@ async function callAnthropicStream({
           return;
         }
       } catch {
-        // Continue parsing
+        // Continue
       }
     }
   }

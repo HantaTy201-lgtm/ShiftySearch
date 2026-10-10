@@ -73,6 +73,15 @@
 
   // src/api/ai-client.js
   var PROVIDERS = {
+    gemini: {
+      id: "gemini",
+      name: "Google Gemini",
+      defaultModel: "gemini-2.0-flash",
+      models: ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"],
+      defaultUrl: "",
+      keyPlaceholder: "AIzaSy...",
+      keyHelpUrl: "https://aistudio.google.com/app/apikey"
+    },
     openai: {
       id: "openai",
       name: "OpenAI (ChatGPT)",
@@ -81,24 +90,6 @@
       defaultUrl: "https://api.openai.com/v1/chat/completions",
       keyPlaceholder: "sk-...",
       keyHelpUrl: "https://platform.openai.com/api-keys"
-    },
-    gemini: {
-      id: "gemini",
-      name: "Google Gemini",
-      defaultModel: "gemini-2.0-flash",
-      models: ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"],
-      defaultUrl: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
-      keyPlaceholder: "AIzaSy...",
-      keyHelpUrl: "https://aistudio.google.com/app/apikey"
-    },
-    anthropic: {
-      id: "anthropic",
-      name: "Anthropic Claude",
-      defaultModel: "claude-3-5-haiku-20241022",
-      models: ["claude-3-5-haiku-20241022", "claude-3-5-sonnet-20241022"],
-      defaultUrl: "https://api.anthropic.com/v1/messages",
-      keyPlaceholder: "sk-ant-...",
-      keyHelpUrl: "https://console.anthropic.com/settings/keys"
     },
     openrouter: {
       id: "openrouter",
@@ -115,6 +106,15 @@
       defaultUrl: "https://openrouter.ai/api/v1/chat/completions",
       keyPlaceholder: "sk-or-v1-...",
       keyHelpUrl: "https://openrouter.ai/keys"
+    },
+    anthropic: {
+      id: "anthropic",
+      name: "Anthropic Claude",
+      defaultModel: "claude-3-5-haiku-20241022",
+      models: ["claude-3-5-haiku-20241022", "claude-3-5-sonnet-20241022"],
+      defaultUrl: "https://api.anthropic.com/v1/messages",
+      keyPlaceholder: "sk-ant-...",
+      keyHelpUrl: "https://console.anthropic.com/settings/keys"
     },
     groq: {
       id: "groq",
@@ -140,7 +140,7 @@
       defaultModel: "llama3.2",
       models: ["llama3.2", "mistral", "qwen2.5"],
       defaultUrl: "http://localhost:11434/v1/chat/completions",
-      keyPlaceholder: "Optional key (or ollama)",
+      keyPlaceholder: "\u041D\u0435 \u0442\u0440\u0435\u0431\u0443\u0435\u0442\u0441\u044F (\u0438\u043B\u0438 ollama)",
       keyHelpUrl: ""
     }
   };
@@ -155,7 +155,7 @@
 \u0415\u0441\u043B\u0438 \u0442\u043E\u0447\u043D\u043E\u0439 \u0441\u0441\u044B\u043B\u043A\u0438 \u043D\u0435\u0442, \u0441\u0444\u043E\u0440\u043C\u0438\u0440\u0443\u0439 \u043F\u043E\u0438\u0441\u043A\u043E\u0432\u0443\u044E \u0441\u0441\u044B\u043B\u043A\u0443:
 - [\u041F\u043E\u0438\u0441\u043A \u0432 Google](https://www.google.com/search?q=...) \u2014 \u043F\u043E\u0438\u0441\u043A\u043E\u0432\u044B\u0439 \u0437\u0430\u043F\u0440\u043E\u0441`;
   async function sendAiRequest({
-    provider = "openai",
+    provider = "gemini",
     apiKey = "",
     model = "",
     baseUrl = "",
@@ -169,19 +169,31 @@
     },
     signal = null
   }) {
-    const providerConfig = PROVIDERS[provider] || PROVIDERS.openai;
-    const endpoint = baseUrl && baseUrl.trim().length > 0 ? baseUrl.trim() : providerConfig.defaultUrl;
+    const providerConfig = PROVIDERS[provider] || PROVIDERS.gemini;
+    const cleanKey = (apiKey || "").trim();
     const activeModel = model && model.trim().length > 0 ? model.trim() : providerConfig.defaultModel;
-    if (!apiKey && provider !== "custom") {
+    if (!cleanKey && provider !== "custom") {
       const err = new Error(`\u041F\u043E\u0436\u0430\u043B\u0443\u0439\u0441\u0442\u0430, \u0443\u043A\u0430\u0436\u0438\u0442\u0435 API-\u043A\u043B\u044E\u0447 \u0434\u043B\u044F ${providerConfig.name} \u0432 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u0445 ShiftySearch.`);
       onError(err);
       return;
     }
     try {
-      if (provider === "anthropic") {
+      if (provider === "gemini") {
+        await callGeminiNativeStream({
+          apiKey: cleanKey,
+          model: activeModel,
+          baseUrl,
+          systemPrompt,
+          messages,
+          onChunk,
+          onDone,
+          onError,
+          signal
+        });
+      } else if (provider === "anthropic") {
         await callAnthropicStream({
-          endpoint,
-          apiKey,
+          endpoint: baseUrl && baseUrl.trim().length > 0 ? baseUrl.trim() : providerConfig.defaultUrl,
+          apiKey: cleanKey,
           model: activeModel,
           systemPrompt,
           messages,
@@ -192,8 +204,8 @@
         });
       } else {
         await callOpenAiCompatibleStream({
-          endpoint,
-          apiKey,
+          endpoint: baseUrl && baseUrl.trim().length > 0 ? baseUrl.trim() : providerConfig.defaultUrl,
+          apiKey: cleanKey,
           model: activeModel,
           systemPrompt,
           messages,
@@ -211,6 +223,107 @@
       }
       onError(err);
     }
+  }
+  async function callGeminiNativeStream({
+    apiKey,
+    model,
+    baseUrl,
+    systemPrompt,
+    messages,
+    onChunk,
+    onDone,
+    onError,
+    signal
+  }) {
+    const cleanKey = apiKey.trim();
+    let activeModel = model.trim() || "gemini-2.0-flash";
+    activeModel = activeModel.replace(/^models\//, "");
+    let endpoint = "";
+    if (baseUrl && baseUrl.trim().length > 0) {
+      endpoint = baseUrl.trim();
+      if (!endpoint.includes("key=")) {
+        endpoint += (endpoint.includes("?") ? "&" : "?") + `key=${encodeURIComponent(cleanKey)}&alt=sse`;
+      }
+    } else {
+      endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(activeModel)}:streamGenerateContent?key=${encodeURIComponent(cleanKey)}&alt=sse`;
+    }
+    const contents = messages.map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }]
+    }));
+    const payload = {
+      contents,
+      generationConfig: {
+        temperature: 0.7
+      }
+    };
+    if (systemPrompt && systemPrompt.trim()) {
+      payload.systemInstruction = {
+        parts: [{ text: systemPrompt }]
+      };
+    }
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": cleanKey
+      },
+      signal,
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      let errorDetail = "";
+      try {
+        const errJson = await response.json();
+        if (Array.isArray(errJson) && errJson[0]?.error?.message) {
+          errorDetail = errJson[0].error.message;
+        } else if (errJson.error?.message) {
+          errorDetail = errJson.error.message;
+        } else {
+          errorDetail = JSON.stringify(errJson);
+        }
+      } catch {
+        errorDetail = await response.text();
+      }
+      if (errorDetail.includes("API_KEY_INVALID") || errorDetail.includes("API key not valid")) {
+        throw new Error("API-\u043A\u043B\u044E\u0447 Google Gemini \u043D\u0435\u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0442\u0435\u043B\u0435\u043D. \u0423\u0431\u0435\u0434\u0438\u0442\u0435\u0441\u044C, \u0447\u0442\u043E \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043B\u0438 \u043A\u043B\u044E\u0447 \u043F\u043E\u043B\u043D\u043E\u0441\u0442\u044C\u044E \u0438\u0437 Google AI Studio (aistudio.google.com/app/apikey).");
+      }
+      if (errorDetail.includes("RESOURCE_EXHAUSTED")) {
+        throw new Error("\u041F\u0440\u0435\u0432\u044B\u0448\u0435\u043D \u043B\u0438\u043C\u0438\u0442 \u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432 Google Gemini. \u041F\u043E\u0434\u043E\u0436\u0434\u0438\u0442\u0435 1 \u043C\u0438\u043D\u0443\u0442\u0443 \u0438\u043B\u0438 \u0432\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u043C\u043E\u0434\u0435\u043B\u044C gemini-1.5-flash.");
+      }
+      if (errorDetail.includes("User location is not supported")) {
+        throw new Error("Google Gemini \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D \u0432 \u0432\u0430\u0448\u0435\u043C \u0440\u0435\u0433\u0438\u043E\u043D\u0435 \u0431\u0435\u0437 VPN (User location is not supported). \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 VPN \u0438\u043B\u0438 \u0432\u044B\u0431\u0435\u0440\u0438\u0442\u0435 OpenRouter / Groq \u0432 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u0445.");
+      }
+      throw new Error(`\u041E\u0448\u0438\u0431\u043A\u0430 Gemini API (${response.status}): ${errorDetail || response.statusText}`);
+    }
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
+    let fullText = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith(":")) continue;
+        if (trimmed.startsWith("data: ")) {
+          const jsonStr = trimmed.slice(6);
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const chunkText = parsed.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            if (chunkText) {
+              fullText += chunkText;
+              onChunk(chunkText, fullText);
+            }
+          } catch {
+          }
+        }
+      }
+    }
+    onDone(fullText);
   }
   async function callOpenAiCompatibleStream({
     endpoint,
@@ -253,14 +366,20 @@
       let errorDetail = "";
       try {
         const errJson = await response.json();
-        errorDetail = errJson.error?.message || errJson.message || JSON.stringify(errJson);
+        if (Array.isArray(errJson) && errJson[0]?.error?.message) {
+          errorDetail = errJson[0].error.message;
+        } else if (errJson.error?.message) {
+          errorDetail = errJson.error.message;
+        } else {
+          errorDetail = JSON.stringify(errJson);
+        }
       } catch {
         errorDetail = await response.text();
       }
       throw new Error(`\u041E\u0448\u0438\u0431\u043A\u0430 API (${response.status}): ${errorDetail || response.statusText}`);
     }
     if (!response.body) {
-      throw new Error("\u041E\u0442\u0432\u0435\u0442 \u0441\u0435\u0440\u0432\u0435\u0440\u0430 \u043D\u0435 \u0441\u043E\u0434\u0435\u0440\u0436\u0438\u0442 \u0434\u0430\u043D\u043D\u044B\u0445 (Body is empty)");
+      throw new Error("\u041E\u0442\u0432\u0435\u0442 \u0441\u0435\u0440\u0432\u0435\u0440\u0430 \u043F\u0443\u0441\u0442");
     }
     const reader = response.body.getReader();
     const decoder = new TextDecoder("utf-8");
@@ -1656,8 +1775,13 @@
         handleSubmit();
       }
     });
+    let currentStreamPort = null;
     btnSend.addEventListener("click", () => {
-      if (currentAbortController) {
+      if (currentStreamPort) {
+        currentStreamPort.disconnect();
+        currentStreamPort = null;
+        setSendButtonState(false);
+      } else if (currentAbortController) {
         currentAbortController.abort();
         currentAbortController = null;
         setSendButtonState(false);
@@ -1680,6 +1804,10 @@
       });
     });
     function clearChat() {
+      if (currentStreamPort) {
+        currentStreamPort.disconnect();
+        currentStreamPort = null;
+      }
       if (currentAbortController) {
         currentAbortController.abort();
         currentAbortController = null;
@@ -1725,9 +1853,59 @@
       messagesListEl.appendChild(assistantMsgEl);
       contentEl.classList.add("shifty-typing");
       bodyEl.scrollTop = bodyEl.scrollHeight;
-      currentAbortController = new AbortController();
       setSendButtonState(true);
       let fullAnswer = "";
+      let streamPort = null;
+      try {
+        streamPort = chrome.runtime.connect({ name: "shifty-stream" });
+      } catch (e) {
+        streamPort = null;
+      }
+      if (streamPort) {
+        currentStreamPort = streamPort;
+        streamPort.onMessage.addListener((msg) => {
+          if (msg.type === "chunk") {
+            fullAnswer = msg.accumulated;
+            contentEl.innerHTML = renderMarkdown(msg.accumulated);
+            renderLinksBox(msg.accumulated, linksContainerEl);
+            bodyEl.scrollTop = bodyEl.scrollHeight;
+          } else if (msg.type === "done") {
+            const textToSave = msg.finalText || fullAnswer;
+            contentEl.classList.remove("shifty-typing");
+            contentEl.innerHTML = renderMarkdown(textToSave);
+            renderLinksBox(textToSave, linksContainerEl);
+            chatHistory.push({ role: "assistant", content: textToSave });
+            currentStreamPort = null;
+            setSendButtonState(false);
+            attachCodeCopyListeners(contentEl);
+          } else if (msg.type === "error") {
+            contentEl.classList.remove("shifty-typing");
+            contentEl.innerHTML = `<span style="color:#ef4444;">\u26A0\uFE0F ${msg.error}</span>`;
+            currentStreamPort = null;
+            setSendButtonState(false);
+          }
+        });
+        streamPort.onDisconnect.addListener(() => {
+          if (currentStreamPort) {
+            currentStreamPort = null;
+            contentEl.classList.remove("shifty-typing");
+            setSendButtonState(false);
+          }
+        });
+        streamPort.postMessage({
+          action: "send",
+          payload: {
+            provider: config.provider,
+            apiKey: config.apiKey,
+            model: config.model,
+            baseUrl: config.baseUrl,
+            systemPrompt: config.systemPrompt || DEFAULT_SYSTEM_PROMPT,
+            messages: chatHistory
+          }
+        });
+        return;
+      }
+      currentAbortController = new AbortController();
       await sendAiRequest({
         provider: config.provider,
         apiKey: config.apiKey,

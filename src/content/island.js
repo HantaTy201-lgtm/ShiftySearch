@@ -608,8 +608,14 @@ import islandCss from './island.css';
     }
   });
 
+  let currentStreamPort = null;
+
   btnSend.addEventListener('click', () => {
-    if (currentAbortController) {
+    if (currentStreamPort) {
+      currentStreamPort.disconnect();
+      currentStreamPort = null;
+      setSendButtonState(false);
+    } else if (currentAbortController) {
       currentAbortController.abort();
       currentAbortController = null;
       setSendButtonState(false);
@@ -635,6 +641,10 @@ import islandCss from './island.css';
   });
 
   function clearChat() {
+    if (currentStreamPort) {
+      currentStreamPort.disconnect();
+      currentStreamPort = null;
+    }
     if (currentAbortController) {
       currentAbortController.abort();
       currentAbortController = null;
@@ -687,10 +697,67 @@ import islandCss from './island.css';
     contentEl.classList.add('shifty-typing');
     bodyEl.scrollTop = bodyEl.scrollHeight;
 
-    currentAbortController = new AbortController();
     setSendButtonState(true);
-
     let fullAnswer = '';
+
+    // First, try background bridge (100% bypasses page CSP and CORS)
+    let streamPort = null;
+    try {
+      streamPort = chrome.runtime.connect({ name: 'shifty-stream' });
+    } catch (e) {
+      streamPort = null;
+    }
+
+    if (streamPort) {
+      currentStreamPort = streamPort;
+
+      streamPort.onMessage.addListener((msg) => {
+        if (msg.type === 'chunk') {
+          fullAnswer = msg.accumulated;
+          contentEl.innerHTML = renderMarkdown(msg.accumulated);
+          renderLinksBox(msg.accumulated, linksContainerEl);
+          bodyEl.scrollTop = bodyEl.scrollHeight;
+        } else if (msg.type === 'done') {
+          const textToSave = msg.finalText || fullAnswer;
+          contentEl.classList.remove('shifty-typing');
+          contentEl.innerHTML = renderMarkdown(textToSave);
+          renderLinksBox(textToSave, linksContainerEl);
+          chatHistory.push({ role: 'assistant', content: textToSave });
+          currentStreamPort = null;
+          setSendButtonState(false);
+          attachCodeCopyListeners(contentEl);
+        } else if (msg.type === 'error') {
+          contentEl.classList.remove('shifty-typing');
+          contentEl.innerHTML = `<span style="color:#ef4444;">⚠️ ${msg.error}</span>`;
+          currentStreamPort = null;
+          setSendButtonState(false);
+        }
+      });
+
+      streamPort.onDisconnect.addListener(() => {
+        if (currentStreamPort) {
+          currentStreamPort = null;
+          contentEl.classList.remove('shifty-typing');
+          setSendButtonState(false);
+        }
+      });
+
+      streamPort.postMessage({
+        action: 'send',
+        payload: {
+          provider: config.provider,
+          apiKey: config.apiKey,
+          model: config.model,
+          baseUrl: config.baseUrl,
+          systemPrompt: config.systemPrompt || DEFAULT_SYSTEM_PROMPT,
+          messages: chatHistory
+        }
+      });
+      return;
+    }
+
+    // Direct fallback if port is unavailable
+    currentAbortController = new AbortController();
 
     await sendAiRequest({
       provider: config.provider,
